@@ -9,6 +9,7 @@ public class ImageStyle : Style
 	public static class PropertyNames
 	{
 		public static readonly string Color = "Color";
+		public static readonly string ImageType = "ImageType";
 	}
 
 	public override Type ComponentType => typeof(UnityEngine.UI.Image);
@@ -20,6 +21,7 @@ public class ImageStyle : Style
 			return new Dictionary<string, Type>()
 			{
 				{ PropertyNames.Color, typeof(ColorProperty) },
+				{ PropertyNames.ImageType, typeof(ImageTypeProperty) }
 			};
 		}
 	}

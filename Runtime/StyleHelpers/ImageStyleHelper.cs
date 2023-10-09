@@ -10,18 +10,38 @@ namespace Myna.Unity.Themes
 	{
 		[Header("Overrides")]
 		[SerializeField]
-		private OverrideAlphaProperty _overrideAlpha = new OverrideAlphaProperty();
+		private OverrideColorProperty _overrideColor = new();
+
+		[SerializeField]
+		private OverrideAlphaProperty _overrideAlpha = new();
+
+		[SerializeField]
+		private OverrideToggleProperty _overrideImageType = new();
 
 		protected Image Image => Component;
 
 		protected override void ApplyStyle(ImageStyle style)
 		{
-			if (style.TryGetProperty(ImageStyle.PropertyNames.Color, out ColorProperty colorProperty))
+			var color = Image.color;
+			if (style.TryGetProperty(ImageStyle.PropertyNames.Color,
+				out ColorProperty colorProperty))
 			{
-				var color = colorProperty.GetColor(Theme);
-				color.a = _overrideAlpha.OverrideOrDefaultValue(color.a);
-				Image.color = color;
+				color = colorProperty.GetColor(Theme);
 			}
+
+			if (!_overrideImageType.Enabled)
+			{
+				if (style.TryGetProperty(ImageStyle.PropertyNames.ImageType,
+					out ImageTypeProperty imageTypeProperty))
+				{
+					imageTypeProperty.Apply(Image);
+				}
+			}
+
+			color = _overrideColor.OverrideOrDefaultValue(color);
+			color.a = _overrideAlpha.OverrideOrDefaultValue(color.a);
+
+			Image.color = color;
 		}
 	}
 }

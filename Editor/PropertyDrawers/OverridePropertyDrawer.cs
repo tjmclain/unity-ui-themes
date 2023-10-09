@@ -14,6 +14,24 @@ namespace Myna.Unity.Themes.Editor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
+			// find name of value property via reflection
+			var target = property.serializedObject.targetObject;
+			string valuePropertyNamePropertyPath = $"{property.propertyPath}.{nameof(OverrideProperty.ValuePropertyName)}";
+			if (!TryGetReflectedValue(target, valuePropertyNamePropertyPath, out string valuePropertyName))
+			{
+				EditorGUI.PropertyField(position, property, label);
+				return;
+			}
+
+			var enabledProperty = property.FindPropertyRelative(OverrideProperty.EnabledPropertyName);
+
+			// if the value property name matches "enabled", we're a toggle override, so just show the toggle
+			if (valuePropertyName == OverrideProperty.EnabledPropertyName)
+			{
+				EditorGUI.PropertyField(position, enabledProperty, label);
+				return;
+			}
+
 			var toggleSize = EditorStyles.toggle.CalcSize(GUIContent.none);
 
 			float buffer = EditorGUIUtility.singleLineHeight * 0.5f;
@@ -25,16 +43,6 @@ namespace Myna.Unity.Themes.Editor
 				width = toggleSize.x,
 			};
 
-			// find name of value property via reflection
-			var target = property.serializedObject.targetObject;
-			string valuePropertyNamePropertyPath = $"{property.propertyPath}.{nameof(OverrideProperty.ValuePropertyName)}";
-			if (!TryGetReflectedValue(target, valuePropertyNamePropertyPath, out var valuePropertyName))
-			{
-				EditorGUI.PropertyField(position, property, label);
-				return;
-			}
-
-			var enabledProperty = property.FindPropertyRelative("_enabled");
 			var valueProperty = property.FindPropertyRelative(valuePropertyName.ToString());
 
 			EditorGUI.BeginDisabledGroup(!enabledProperty.boolValue);
@@ -42,6 +50,24 @@ namespace Myna.Unity.Themes.Editor
 			EditorGUI.EndDisabledGroup();
 
 			enabledProperty.boolValue = EditorGUI.Toggle(enabledPos, enabledProperty.boolValue);
+		}
+
+		private static bool TryGetReflectedValue<T>(Object root, string path, out T value)
+		{
+			if (!TryGetReflectedValue(root, path, out var result))
+			{
+				value = default;
+				return false;
+			}
+
+			if (result is not T typedResult)
+			{
+				value = default;
+				return false;
+			}
+
+			value = typedResult;
+			return true;
 		}
 
 		private static bool TryGetReflectedValue(Object root, string path, out object value)

@@ -1,9 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Myna.Unity.Themes
 {
@@ -14,10 +12,17 @@ namespace Myna.Unity.Themes
 		private ColorScheme _defaultColorScheme = null;
 
 		[SerializeField]
-		private List<Style> _styles = new();
+		private ColorScheme[] _colorSchemes = new ColorScheme[0];
+
+		[SerializeField]
+		private Style[] _styles = new Style[0];
+
+		private ColorScheme _activeColorScheme = null;
 
 		public ColorScheme DefaultColorScheme => _defaultColorScheme;
-		public List<Style> Styles => _styles;
+		public ColorScheme ActiveColorScheme => _activeColorScheme != null ? _activeColorScheme : _defaultColorScheme;
+		public ColorScheme[] ColorSchemes => _colorSchemes;
+		public Style[] Styles => _styles;
 
 		public IEnumerable<string> ColorNames => _defaultColorScheme != null
 			? _defaultColorScheme.ColorNames
@@ -27,6 +32,30 @@ namespace Myna.Unity.Themes
 		{
 			return _styles.Where(x => x.ComponentType == componentType)
 				.Select(x => x.ClassName);
+		}
+
+		public void SetColorScheme(string colorSchemeName)
+		{
+			// Reset to default color scheme
+			if (_defaultColorScheme != null && colorSchemeName == _defaultColorScheme.name)
+			{
+				_activeColorScheme = _defaultColorScheme;
+				return;
+			}
+
+			int index = Array.FindIndex(_colorSchemes, x => x.name == colorSchemeName);
+			if (index < 0)
+			{
+				Debug.LogError($"{nameof(ColorSchemes)} does not contain '{colorSchemeName}'", this);
+				return;
+			}
+
+			_activeColorScheme = _colorSchemes[index];
+		}
+
+		public void ResetColorSchemeToDefault()
+		{
+			_activeColorScheme = _defaultColorScheme;
 		}
 
 		public bool TryGetStyle(Type componentType, out Style style)
@@ -83,7 +112,7 @@ namespace Myna.Unity.Themes
 
 			if (untypedStyle is not T typedStyle)
 			{
-				Debug.LogError($"{untypedStyle.Id} is not {typeof(T).Name}");
+				Debug.LogError($"{untypedStyle.Id} is not {typeof(T).Name}", this);
 				style = default;
 				return false;
 			}
@@ -94,26 +123,28 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetColor(string colorName, out Color color)
 		{
-			if (_defaultColorScheme == null)
+			var colorScheme = ActiveColorScheme;
+			if (colorScheme == null)
 			{
-				Debug.LogError($"{nameof(_defaultColorScheme)} == null");
+				Debug.LogError($"{nameof(ActiveColorScheme)} == null", this);
 				color = default;
 				return false;
 			}
 
-			return _defaultColorScheme.TryGetColor(colorName, out color);
+			return colorScheme.TryGetColor(colorName, out color);
 		}
 
 		public bool TryGetColorByGuid(string guid, out Color color)
 		{
-			if (_defaultColorScheme == null)
+			var colorScheme = ActiveColorScheme;
+			if (colorScheme == null)
 			{
-				Debug.LogError($"{nameof(_defaultColorScheme)} == null");
+				Debug.LogError($"{nameof(ActiveColorScheme)} == null", this);
 				color = default;
 				return false;
 			}
 
-			return _defaultColorScheme.TryGetColorByGuid(guid, out color);
+			return colorScheme.TryGetColorByGuid(guid, out color);
 		}
 	}
 }

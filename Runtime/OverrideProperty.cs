@@ -9,6 +9,7 @@ public abstract class OverrideProperty
 
 	public bool Enabled => _enabled;
 
+	public static string EnabledPropertyName => nameof(_enabled);
 	public abstract string ValuePropertyName { get; }
 }
 

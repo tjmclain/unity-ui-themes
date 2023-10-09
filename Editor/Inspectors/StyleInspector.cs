@@ -63,10 +63,14 @@ public class StyleInspector : Editor
 				continue;
 			}
 
+			EditorGUILayout.BeginVertical(EditorStyles.textArea);
+
 			EditorGUI.indentLevel++;
 
 			var editor = CreateEditor(asset);
 			editor.OnInspectorGUI();
+
+			EditorGUILayout.EndVertical();
 
 			EditorGUI.indentLevel--;
 
