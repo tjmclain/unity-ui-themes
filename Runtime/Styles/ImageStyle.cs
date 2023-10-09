@@ -4,8 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ImageStyle", menuName = "UI Themes/Style - Image")]
-public class ImageStyle : ThemeStyle
+public class ImageStyle : Style
 {
+	public static class PropertyNames
+	{
+		public static readonly string Color = "Color";
+	}
+
 	public override Type ComponentType => typeof(UnityEngine.UI.Image);
 
 	public override Dictionary<string, Type> PropertyDefinitions
@@ -14,7 +19,7 @@ public class ImageStyle : ThemeStyle
 		{
 			return new Dictionary<string, Type>()
 			{
-				{ "Color", typeof(ColorProperty) },
+				{ PropertyNames.Color, typeof(ColorProperty) },
 			};
 		}
 	}

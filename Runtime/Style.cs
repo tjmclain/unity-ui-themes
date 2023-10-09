@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class ThemeStyle : ScriptableObject
+public abstract class Style : ScriptableObject
 {
 	[SerializeField]
 	private string _className = "";
@@ -15,14 +15,9 @@ public abstract class ThemeStyle : ScriptableObject
 	public abstract Dictionary<string, System.Type> PropertyDefinitions { get; }
 
 	public string ClassName => _className;
+	public List<StyleProperty> Properties => _properties;
 
-	public IEnumerable<string> PropertyNames => _properties
-		.Where(x => x != null)
-		.Select(x => x.name);
-
-	protected List<StyleProperty> Properties => _properties;
-
-	public bool TryGetProperty<T>(string propertyName, out T property) where T : ThemeStyle
+	public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
 	{
 		if (string.IsNullOrEmpty(propertyName))
 		{

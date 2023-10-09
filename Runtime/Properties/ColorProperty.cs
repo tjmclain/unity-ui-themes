@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Myna.Unity.Themes;
 using UnityEngine;
 
 public class ColorProperty : StyleProperty
 {
-	[SerializeField, HideInInspector]
+	[SerializeField, ColorName]
 	private string _colorName = string.Empty;
 
 	[SerializeField]
@@ -12,4 +13,10 @@ public class ColorProperty : StyleProperty
 
 	public string ColorName => _colorName;
 	public Color FallbackColor => _fallbackColor;
+
+	public Color GetColor(Theme theme)
+	{
+		return theme.TryGetColorByGuid(_colorName, out var color) || theme.TryGetColor(_colorName, out color)
+			? color : _fallbackColor;
+	}
 }

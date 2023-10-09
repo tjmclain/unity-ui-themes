@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
-using UnityEngine.Android;
-using Unity.VisualScripting.YamlDotNet.Serialization.TypeInspectors;
 
-[CustomEditor(typeof(ThemeStyle), true)]
-public class ThemeStyleInspector : Editor
+[CustomEditor(typeof(Style), true)]
+public class StyleInspector : Editor
 {
 	private int _selectedPropertyIndex = -1;
 
@@ -27,7 +25,6 @@ public class ThemeStyleInspector : Editor
 		base.OnInspectorGUI();
 
 		DrawPropertiesList();
-		DrawAddPropertyGui();
 
 		serializedObject.ApplyModifiedProperties();
 	}
@@ -89,63 +86,11 @@ public class ThemeStyleInspector : Editor
 		}
 
 		EditorGUI.indentLevel--;
-	}
 
-	//private void DrawPropertiesList()
-	//{
-	//	static bool ArrayPropertyContains(SerializedProperty property, Object obectReference)
-	//	{
-	//		for (int i = 0; i < property.arraySize; i++)
-	//		{
-	//			var element = property.GetArrayElementAtIndex(i);
-	//			if (element.objectReferenceValue == obectReference)
-	//			{
-	//				return true;
-	//			}
-	//		}
-
-	//		return false;
-	//	}
-
-	//	var propertiesList = GetPropertiesListProperty();
-
-	//	EditorGUI.BeginChangeCheck();
-	//	EditorGUILayout.PropertyField(propertiesList);
-	//	if (!EditorGUI.EndChangeCheck())
-	//	{
-	//		return;
-	//	}
-
-	//	var propertyAssets = GetSubAssets();
-
-	//	foreach (var asset in propertyAssets)
-	//	{
-	//		if (ArrayPropertyContains(propertiesList, asset))
-	//		{
-	//			continue;
-	//		}
-
-	//		Undo.DestroyObjectImmediate(asset);
-	//	}
-
-	//	AssetDatabase.SaveAssets();
-	//	AssetDatabase.Refresh();
-
-	//	RefreshProperties();
-
-	//	Repaint();
-	//}
-
-	private void DrawAddPropertyGui()
-	{
-		if (target is not ThemeStyle themeStyle)
-		{
-			Debug.LogWarning($"{nameof(target)} is not {nameof(ThemeStyle)}", target);
-			return;
-		}
-
+		// Add Property button
+		var themeStyle = target as Style;
 		var propertyNames = themeStyle.PropertyDefinitions.Keys
-			.Where(x => !themeStyle.PropertyNames.Contains(x))
+			.Where(x => !themeStyle.Properties.Exists(y => y.name == x))
 			.ToArray();
 
 		if (propertyNames.Length == 0)
@@ -155,7 +100,6 @@ public class ThemeStyleInspector : Editor
 
 		_selectedPropertyIndex = Mathf.Clamp(_selectedPropertyIndex, 0, propertyNames.Length - 1);
 
-		EditorGUILayout.LabelField("Add Property", EditorStyles.boldLabel);
 		EditorGUILayout.BeginHorizontal();
 		{
 			_selectedPropertyIndex = EditorGUILayout.Popup(_selectedPropertyIndex, propertyNames);
@@ -176,15 +120,15 @@ public class ThemeStyleInspector : Editor
 			return;
 		}
 
-		if (target is not ThemeStyle themeStyle)
+		if (target is not Style themeStyle)
 		{
-			Debug.LogError($"{nameof(target)} is not {nameof(ThemeStyle)}", target);
+			Debug.LogError($"{nameof(target)} is not {nameof(Style)}", target);
 			return;
 		}
 
 		if (!themeStyle.PropertyDefinitions.TryGetValue(propertyName, out var propertyType))
 		{
-			Debug.LogError($"!{nameof(ThemeStyle.PropertyDefinitions)}.TryGetValue '{propertyName}'", target);
+			Debug.LogError($"!{nameof(Style.PropertyDefinitions)}.TryGetValue '{propertyName}'", target);
 			return;
 		}
 
