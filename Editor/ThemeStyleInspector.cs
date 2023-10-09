@@ -56,12 +56,10 @@ public class ThemeStyleInspector : Editor
 			}
 
 			EditorGUILayout.BeginHorizontal();
-			element.isExpanded = EditorGUILayout.Foldout(element.isExpanded, asset.name);
 
-			if (GUILayout.Button("—", GUILayout.ExpandWidth(false)))
-			{
-				// TODO: delete asset
-			}
+			element.isExpanded = EditorGUILayout.Foldout(element.isExpanded, asset.name);
+			bool delete = GUILayout.Button("—", GUILayout.ExpandWidth(false));
+
 			EditorGUILayout.EndHorizontal();
 			if (!element.isExpanded)
 			{
@@ -74,6 +72,20 @@ public class ThemeStyleInspector : Editor
 			editor.OnInspectorGUI();
 
 			EditorGUI.indentLevel--;
+
+			if (delete)
+			{
+				Undo.DestroyObjectImmediate(asset);
+
+				AssetDatabase.SaveAssets();
+				AssetDatabase.Refresh();
+
+				RefreshProperties();
+
+				Repaint();
+
+				break;
+			}
 		}
 
 		EditorGUI.indentLevel--;
