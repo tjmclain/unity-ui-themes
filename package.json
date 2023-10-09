@@ -1,0 +1,15 @@
+{
+	"name": "com.mynagames.unityuithemes",
+	"version": "0.1.0",
+	"displayName": "Themes for Unity UI",
+	"description": "TODO",
+	"unity": "2019.1",
+	"author": {
+		"name": "Thomas McLain",
+		"email": "support@mynagames.com",
+		"url": "https://www.twitter.com/tjmclain"
+	},
+	"dependencies": {
+		"com.unity.ugui": "1.0.0"
+	}
+}
