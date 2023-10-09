@@ -62,7 +62,7 @@ namespace Myna.Unity.Themes.Editor
 
 			string value = property.stringValue;
 			int index = System.Array.FindIndex(colors, x => x.Name == value || x.Guid == value);
-			index = Mathf.Max(index, 0);
+			index = System.Math.Max(index, 0);
 
 			index = EditorGUI.Popup(position, label, index, options);
 

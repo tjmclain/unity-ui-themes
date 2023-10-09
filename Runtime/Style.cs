@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using UnityEngine;
 
 public abstract class Style : ScriptableObject
@@ -16,6 +16,22 @@ public abstract class Style : ScriptableObject
 
 	public string ClassName => _className;
 	public List<StyleProperty> Properties => _properties;
+
+	public string Id => GetId(this);
+
+	public static string GetId(Style style)
+	{
+		var sb = new StringBuilder();
+		sb.Append(style.ComponentType.Name);
+
+		if (!string.IsNullOrEmpty(style.ClassName))
+		{
+			sb.Append(".");
+			sb.Append(style.ClassName);
+		}
+
+		return sb.ToString();
+	}
 
 	public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
 	{
@@ -42,5 +58,11 @@ public abstract class Style : ScriptableObject
 
 		property = typedProperty;
 		return true;
+	}
+
+	public override string ToString()
+	{
+		base.ToString();
+		return $"{name} ({GetType().Name}, id: {Id})";
 	}
 }

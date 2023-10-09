@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace Myna.Unity.Themes
 {
@@ -22,10 +23,16 @@ namespace Myna.Unity.Themes
 			? _defaultColorScheme.ColorNames
 			: Enumerable.Empty<string>();
 
-		public bool TryGetStyle(System.Type componentType, out Style style)
+		public IEnumerable<string> GetStyleClassNames(Type componentType)
+		{
+			return _styles.Where(x => x.ComponentType == componentType)
+				.Select(x => x.ClassName);
+		}
+
+		public bool TryGetStyle(Type componentType, out Style style)
 			=> TryGetStyle(componentType, string.Empty, out style);
 
-		public bool TryGetStyle(System.Type componentType, string className, out Style style)
+		public bool TryGetStyle(Type componentType, string className, out Style style)
 		{
 			if (componentType == null)
 			{
@@ -34,21 +41,39 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			int index = Styles.FindIndex(x => x.ComponentType == componentType && x.ClassName == className);
-			if (index < 0)
+			var styles = Styles.Where(x => x.ComponentType == componentType).ToArray();
+			if (styles.Length == 0)
 			{
+				Debug.LogError($"Could not any styles for component type '{componentType.Name}'", this);
 				style = default;
 				return false;
 			}
 
-			style = Styles[index];
-			return true;
+			// try to the find the style with our exact class name
+			int index = Array.FindIndex(styles, x => x.ClassName == className);
+			if (index >= 0)
+			{
+				style = styles[index];
+				return true;
+			}
+
+			// otherwise, try to find the default style (no class name)
+			index = Array.FindIndex(styles, x => x.ClassName == string.Empty);
+			if (index >= 0)
+			{
+				style = styles[index];
+				return true;
+			}
+
+			Debug.LogError($"Could not find class '{className}' or default style for component type '{componentType.Name}'", this);
+			style = default;
+			return false;
 		}
 
-		public bool TryGetStyle<T>(System.Type componentType, out T style) where T : Style
+		public bool TryGetStyle<T>(Type componentType, out T style) where T : Style
 			=> TryGetStyle(componentType, string.Empty, out style);
 
-		public bool TryGetStyle<T>(System.Type componentType, string className, out T style) where T : Style
+		public bool TryGetStyle<T>(Type componentType, string className, out T style) where T : Style
 		{
 			if (!TryGetStyle(componentType, className, out Style untypedStyle))
 			{
@@ -58,7 +83,7 @@ namespace Myna.Unity.Themes
 
 			if (untypedStyle is not T typedStyle)
 			{
-				Debug.LogError($"{componentType.Name}{(string.IsNullOrEmpty(className) ? string.Empty : $".{className}")} is not {typeof(T).Name}");
+				Debug.LogError($"{untypedStyle.Id} is not {typeof(T).Name}");
 				style = default;
 				return false;
 			}

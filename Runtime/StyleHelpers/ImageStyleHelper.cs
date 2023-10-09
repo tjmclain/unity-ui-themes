@@ -6,36 +6,22 @@ using UnityEngine.UI;
 
 namespace Myna.Unity.Themes
 {
-	public class ImageStyleHelper : StyleHelper
+	public class ImageStyleHelper : StyleHelper<ImageStyle, Image>
 	{
+		[Header("Overrides")]
 		[SerializeField]
-		private Image _image;
+		private OverrideAlphaProperty _overrideAlpha = new OverrideAlphaProperty();
 
-		protected override Type ComponentType => typeof(Image);
+		protected Image Image => Component;
 
-		public override void ApplyStyle()
+		protected override void ApplyStyle(ImageStyle style)
 		{
-			if (!TryGetStyle(out ImageStyle style))
-			{
-				return;
-			}
-
 			if (style.TryGetProperty(ImageStyle.PropertyNames.Color, out ColorProperty colorProperty))
 			{
-				_image.color = colorProperty.GetColor(Theme);
+				var color = colorProperty.GetColor(Theme);
+				color.a = _overrideAlpha.OverrideOrDefaultValue(color.a);
+				Image.color = color;
 			}
 		}
-
-		#region MonoBehaviour
-
-		private void OnValidate()
-		{
-			if (_image == null)
-			{
-				TryGetComponent(out _image);
-			}
-		}
-
-		#endregion MonoBehaviour
 	}
 }

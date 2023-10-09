@@ -8,6 +8,8 @@ namespace Myna.Unity.Themes.Editor
 	[CustomEditor(typeof(StyleHelper), true)]
 	public class StyleHelperInspector : UnityEditor.Editor
 	{
+		#region Editor Methods
+
 		protected virtual void OnEnable()
 		{
 			var theme = serializedObject.FindProperty("_theme");
@@ -16,6 +18,14 @@ namespace Myna.Unity.Themes.Editor
 				theme.objectReferenceValue = ProjectSettings.GetInstance().GetDefaultTheme();
 				serializedObject.ApplyModifiedPropertiesWithoutUndo();
 			}
+
+			var styleHelper = target as StyleHelper;
+			if (styleHelper != null)
+			{
+				styleHelper.ApplyStyle();
+			}
 		}
+
+		#endregion Editor Methods
 	}
 }
