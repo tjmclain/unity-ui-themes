@@ -8,11 +8,10 @@ public class ImageStyle : Style
 {
 	public static class PropertyNames
 	{
+		public static readonly string SourceImage = "SourceImage";
 		public static readonly string Color = "Color";
 		public static readonly string ImageType = "ImageType";
 	}
-
-	public override Type ComponentType => typeof(UnityEngine.UI.Image);
 
 	public override Dictionary<string, Type> PropertyDefinitions
 	{
@@ -20,6 +19,7 @@ public class ImageStyle : Style
 		{
 			return new Dictionary<string, Type>()
 			{
+				{ PropertyNames.SourceImage, typeof(SpriteProperty) },
 				{ PropertyNames.Color, typeof(ColorProperty) },
 				{ PropertyNames.ImageType, typeof(ImageTypeProperty) }
 			};

@@ -81,9 +81,9 @@ public class StyleInspector : Editor
 				ApplyStylesInScene();
 			}
 
-			EditorGUILayout.EndVertical();
-
 			EditorGUI.indentLevel--;
+
+			EditorGUILayout.EndVertical();
 
 			if (delete)
 			{

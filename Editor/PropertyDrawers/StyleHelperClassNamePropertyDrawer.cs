@@ -29,7 +29,7 @@ namespace Myna.Unity.Themes.Editor
 				return;
 			}
 
-			var classNames = theme.GetStyleClassNames(styleHelper.ComponentType).ToArray();
+			var classNames = theme.GetStyleClassNames(styleHelper.StyleType).ToArray();
 			if (classNames.Length < 1)
 			{
 				EditorGUI.PropertyField(position, property, label);

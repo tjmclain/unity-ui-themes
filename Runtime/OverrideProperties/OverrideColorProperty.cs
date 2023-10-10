@@ -9,6 +9,5 @@ public class OverrideColorProperty : OverrideProperty<Color>
 	private Color _color = Color.white;
 
 	public override Color Value => _color;
-
 	public override string ValuePropertyName => nameof(_color);
 }

@@ -11,27 +11,10 @@ public abstract class Style : ScriptableObject
 	[SerializeField, HideInInspector]
 	private List<StyleProperty> _properties = new();
 
-	public abstract System.Type ComponentType { get; }
 	public abstract Dictionary<string, System.Type> PropertyDefinitions { get; }
 
 	public string ClassName => _className;
 	public List<StyleProperty> Properties => _properties;
-
-	public string Id => GetId(this);
-
-	public static string GetId(Style style)
-	{
-		var sb = new StringBuilder();
-		sb.Append(style.ComponentType.Name);
-
-		if (!string.IsNullOrEmpty(style.ClassName))
-		{
-			sb.Append(".");
-			sb.Append(style.ClassName);
-		}
-
-		return sb.ToString();
-	}
 
 	public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
 	{
@@ -63,6 +46,6 @@ public abstract class Style : ScriptableObject
 	public override string ToString()
 	{
 		base.ToString();
-		return $"{name} ({GetType().Name}, id: {Id})";
+		return $"{name} ({GetType().Name}{(string.IsNullOrEmpty(ClassName) ? string.Empty : $".{ClassName}")})";
 	}
 }

@@ -24,13 +24,7 @@ namespace Myna.Unity.Themes.Editor
 			}
 
 			var enabledProperty = property.FindPropertyRelative(OverrideProperty.EnabledPropertyName);
-
-			// if the value property name matches "enabled", we're a toggle override, so just show the toggle
-			if (valuePropertyName == OverrideProperty.EnabledPropertyName)
-			{
-				EditorGUI.PropertyField(position, enabledProperty, label);
-				return;
-			}
+			var valueProperty = property.FindPropertyRelative(valuePropertyName.ToString());
 
 			var toggleSize = EditorStyles.toggle.CalcSize(GUIContent.none);
 
@@ -42,8 +36,6 @@ namespace Myna.Unity.Themes.Editor
 				x = position.x + valuePos.width + buffer,
 				width = toggleSize.x,
 			};
-
-			var valueProperty = property.FindPropertyRelative(valuePropertyName.ToString());
 
 			EditorGUI.BeginDisabledGroup(!enabledProperty.boolValue);
 			EditorGUI.PropertyField(valuePos, valueProperty, label);

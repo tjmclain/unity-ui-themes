@@ -28,9 +28,9 @@ namespace Myna.Unity.Themes
 			? _defaultColorScheme.ColorNames
 			: Enumerable.Empty<string>();
 
-		public IEnumerable<string> GetStyleClassNames(Type componentType)
+		public IEnumerable<string> GetStyleClassNames(Type styleType)
 		{
-			return _styles.Where(x => x.ComponentType == componentType)
+			return _styles.Where(x => styleType.IsAssignableFrom(x.GetType()))
 				.Select(x => x.ClassName);
 		}
 
@@ -61,19 +61,19 @@ namespace Myna.Unity.Themes
 		public bool TryGetStyle(Type componentType, out Style style)
 			=> TryGetStyle(componentType, string.Empty, out style);
 
-		public bool TryGetStyle(Type componentType, string className, out Style style)
+		public bool TryGetStyle(Type styleType, string className, out Style style)
 		{
-			if (componentType == null)
+			if (styleType == null)
 			{
-				Debug.LogError($"{nameof(componentType)} == null", this);
+				Debug.LogError($"{nameof(styleType)} == null", this);
 				style = default;
 				return false;
 			}
 
-			var styles = Styles.Where(x => x.ComponentType == componentType).ToArray();
+			var styles = Styles.Where(x => styleType.IsAssignableFrom(x.GetType())).ToArray();
 			if (styles.Length == 0)
 			{
-				Debug.LogError($"Could not any styles for component type '{componentType.Name}'", this);
+				Debug.LogError($"Could not any styles for component type '{styleType.Name}'", this);
 				style = default;
 				return false;
 			}
@@ -94,30 +94,23 @@ namespace Myna.Unity.Themes
 				return true;
 			}
 
-			Debug.LogError($"Could not find class '{className}' or default style for component type '{componentType.Name}'", this);
+			Debug.LogError($"Could not find class '{className}' or default style for component type '{styleType.Name}'", this);
 			style = default;
 			return false;
 		}
 
-		public bool TryGetStyle<T>(Type componentType, out T style) where T : Style
-			=> TryGetStyle(componentType, string.Empty, out style);
+		public bool TryGetStyle<T>(out T style) where T : Style
+			=> TryGetStyle(string.Empty, out style);
 
-		public bool TryGetStyle<T>(Type componentType, string className, out T style) where T : Style
+		public bool TryGetStyle<T>(string className, out T style) where T : Style
 		{
-			if (!TryGetStyle(componentType, className, out Style untypedStyle))
+			if (!TryGetStyle(typeof(T), className, out Style value))
 			{
 				style = default;
 				return false;
 			}
 
-			if (untypedStyle is not T typedStyle)
-			{
-				Debug.LogError($"{untypedStyle.Id} is not {typeof(T).Name}", this);
-				style = default;
-				return false;
-			}
-
-			style = typedStyle;
+			style = value as T;
 			return true;
 		}
 

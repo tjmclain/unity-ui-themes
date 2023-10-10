@@ -17,7 +17,7 @@ namespace Myna.Unity.Themes
 		public Theme Theme => _theme;
 		public string ClassName => _className;
 
-		public abstract Type ComponentType { get; }
+		public abstract Type StyleType { get; }
 
 		public abstract void ApplyStyle();
 
@@ -30,7 +30,7 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			return _theme.TryGetStyle(ComponentType, _className, out style);
+			return _theme.TryGetStyle(_className, out style);
 		}
 
 		#region MonoBehaviour
@@ -48,36 +48,18 @@ namespace Myna.Unity.Themes
 		#endregion MonoBehaviour
 	}
 
-	public abstract class StyleHelper<TStyle, TComponent> : StyleHelper
-		where TStyle : Style
-		where TComponent : Component
+	public abstract class StyleHelper<TStyle> : StyleHelper where TStyle : Style
 	{
-		[SerializeField, StyleHelperComponent]
-		private TComponent _component;
-
-		public TComponent Component => _component;
-
-		public override Type ComponentType => typeof(TComponent);
+		public override Type StyleType => typeof(TStyle);
 
 		public override sealed void ApplyStyle()
 		{
 			if (TryGetStyle(out TStyle style))
 			{
-				//Debug.Log($"ApplyStyle: {style}", this);
 				ApplyStyle(style);
 			}
 		}
 
 		protected abstract void ApplyStyle(TStyle style);
-
-		protected override void OnValidate()
-		{
-			if (_component == null)
-			{
-				TryGetComponent(out _component);
-			}
-
-			base.OnValidate();
-		}
 	}
 }
