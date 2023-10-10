@@ -23,7 +23,7 @@ public class ImageTypeFieldPropertyDrawer : PropertyDrawer
 		}
 		else
 		{
-			return 0f;
+			return -EditorGUIUtility.standardVerticalSpacing;
 		}
 	}
 

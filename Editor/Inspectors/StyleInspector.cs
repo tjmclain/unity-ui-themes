@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using Myna.Unity.Themes;
+using UnityEditor.SceneManagement;
 
 [CustomEditor(typeof(Style), true)]
 public class StyleInspector : Editor
@@ -26,7 +28,10 @@ public class StyleInspector : Editor
 
 		DrawPropertiesList();
 
-		serializedObject.ApplyModifiedProperties();
+		if (serializedObject.ApplyModifiedProperties())
+		{
+			ApplyStylesInScene();
+		}
 	}
 
 	private void OnEnable()
@@ -67,8 +72,14 @@ public class StyleInspector : Editor
 
 			EditorGUI.indentLevel++;
 
+			EditorGUI.BeginChangeCheck();
 			var editor = CreateEditor(asset);
 			editor.OnInspectorGUI();
+			if (EditorGUI.EndChangeCheck())
+			{
+				//Debug.Log("changed!");
+				ApplyStylesInScene();
+			}
 
 			EditorGUILayout.EndVertical();
 
@@ -171,6 +182,19 @@ public class StyleInspector : Editor
 			propertyListElement.objectReferenceValue = properties[i];
 		}
 
-		serializedObject.ApplyModifiedProperties();
+		if (serializedObject.ApplyModifiedProperties())
+		{
+			ApplyStylesInScene();
+		}
+	}
+
+	private void ApplyStylesInScene()
+	{
+		var stageHandle = StageUtility.GetCurrentStageHandle();
+		var styleHelpers = stageHandle.FindComponentsOfType<StyleHelper>();
+		foreach (var styleHelper in styleHelpers)
+		{
+			styleHelper.ApplyStyle();
+		}
 	}
 }

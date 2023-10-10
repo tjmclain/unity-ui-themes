@@ -30,7 +30,7 @@ namespace Myna.Unity.Themes.Editor
 			}
 
 			var classNames = theme.GetStyleClassNames(styleHelper.ComponentType).ToArray();
-			if (classNames.Length < 2)
+			if (classNames.Length < 1)
 			{
 				EditorGUI.PropertyField(position, property, label);
 				return;

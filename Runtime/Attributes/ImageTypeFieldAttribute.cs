@@ -9,10 +9,16 @@ public class ImageTypeFieldAttribute : PropertyAttribute
 
 	public string TypePropertyName
 	{
-		get => string.IsNullOrEmpty(_overrideTypePropertyName)
-			? ImageTypeProperty.TypePropertyName
-			: _overrideTypePropertyName;
-		set => _overrideTypePropertyName = value;
+		get
+		{
+			return string.IsNullOrEmpty(_overrideTypePropertyName)
+				? ImageTypeProperty.TypePropertyName
+				: _overrideTypePropertyName;
+		}
+		set
+		{
+			_overrideTypePropertyName = value;
+		}
 	}
 
 	public Image.Type[] VisibleInTypes { get; set; } = new Image.Type[0];

@@ -11,9 +11,6 @@ public class ImageTypeProperty : StyleProperty
 	[SerializeField, ImageTypeField(Image.Type.Simple)]
 	private bool _useSpriteMesh = false;
 
-	[SerializeField, ImageTypeField(Image.Type.Simple, Image.Type.Filled)]
-	private bool _preserveAspect = false;
-
 	[SerializeField, ImageTypeField(Image.Type.Sliced, Image.Type.Tiled)]
 	private bool _fillCenter = true;
 
@@ -24,17 +21,20 @@ public class ImageTypeProperty : StyleProperty
 	private Image.FillMethod _fillMethod = Image.FillMethod.Horizontal;
 
 	// TODO: custom property drawer for this
-	[SerializeField, ImageTypeField(Image.Type.Filled)]
+	[SerializeField, ImageTypeFillOrigin]
 	private int _fillOrigin = 0;
 
 	[SerializeField, ImageTypeField(Image.Type.Filled), Range(0f, 1f)]
 	private float _fillAmount = 1f;
 
-	// TODO: custom property drawer for this
-	[SerializeField, ImageTypeField(Image.Type.Filled)]
+	[SerializeField, ImageTypeFillClockwise]
 	private bool _clockwise = true;
 
-	public static string TypePropertyName => nameof(_type);
+	[SerializeField, ImageTypeField(Image.Type.Simple, Image.Type.Filled)]
+	private bool _preserveAspect = false;
+
+	public static readonly string TypePropertyName = nameof(_type);
+	public static readonly string FillMethodPropertyName = nameof(_fillMethod);
 
 	public void Apply(Image image)
 	{
