@@ -9,5 +9,4 @@ public class OverrideSpriteProperty : OverrideProperty<Sprite>
 	private Sprite _sprite;
 
 	public override Sprite Value => _sprite;
-	public override string ValuePropertyName => nameof(_sprite);
 }

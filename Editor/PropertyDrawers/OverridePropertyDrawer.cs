@@ -14,17 +14,10 @@ namespace Myna.Unity.Themes.Editor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			// find name of value property via reflection
-			var target = property.serializedObject.targetObject;
-			string valuePropertyNamePropertyPath = $"{property.propertyPath}.{nameof(OverrideProperty.ValuePropertyName)}";
-			if (!TryGetReflectedValue(target, valuePropertyNamePropertyPath, out string valuePropertyName))
-			{
-				EditorGUI.PropertyField(position, property, label);
-				return;
-			}
-
+			// if we only have 1 child property, draw that; otherwise draw a normal property field
+			var children = SerializedPropertyUtility.GetDirectChildren(property);
+			var mainProperty = children.Count == 1 ? children[0] : property;
 			var enabledProperty = property.FindPropertyRelative(OverrideProperty.EnabledPropertyName);
-			var valueProperty = property.FindPropertyRelative(valuePropertyName.ToString());
 
 			var toggleSize = EditorStyles.toggle.CalcSize(GUIContent.none);
 
@@ -38,7 +31,7 @@ namespace Myna.Unity.Themes.Editor
 			};
 
 			EditorGUI.BeginDisabledGroup(!enabledProperty.boolValue);
-			EditorGUI.PropertyField(valuePos, valueProperty, label);
+			EditorGUI.PropertyField(valuePos, mainProperty, label);
 			EditorGUI.EndDisabledGroup();
 
 			enabledProperty.boolValue = EditorGUI.Toggle(enabledPos, enabledProperty.boolValue);

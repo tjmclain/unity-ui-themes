@@ -4,13 +4,12 @@ using UnityEngine;
 
 public abstract class OverrideProperty
 {
-	[SerializeField]
+	[SerializeField, HideInInspector]
 	private bool _enabled = false;
 
-	public bool Enabled => _enabled;
-
 	public static string EnabledPropertyName => nameof(_enabled);
-	public abstract string ValuePropertyName { get; }
+
+	public bool Enabled => _enabled;
 }
 
 public abstract class OverrideProperty<T> : OverrideProperty

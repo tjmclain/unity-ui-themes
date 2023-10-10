@@ -9,5 +9,4 @@ public class OverrideAlphaProperty : OverrideProperty<float>
 	private float _alpha = 1f;
 
 	public override float Value => _alpha;
-	public override string ValuePropertyName => nameof(_alpha);
 }
