@@ -18,7 +18,7 @@ public class ImageTypePropertyDrawer : PropertyDrawer
 			float height = EditorGUI.GetPropertyHeight(property);
 			rect.height = height;
 
-			EditorGUI.PropertyField(rect, property, label);
+			EditorGUI.PropertyField(rect, property, label, true);
 
 			rect.y += height;
 			rect.y += EditorGUIUtility.standardVerticalSpacing;
