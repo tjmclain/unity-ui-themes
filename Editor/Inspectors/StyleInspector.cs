@@ -31,9 +31,16 @@ namespace Myna.Unity.Themes.Editor
 
 		private void OnEnable()
 		{
-			// TODO: move this to custom property drawer class
+			if (SerializationUtility.ClearAllManagedReferencesWithMissingTypes(target))
+			{
+				Debug.Log($"SerializationUtility.ClearAllManagedReferencesWithMissingTypes: {target.name}", target);
+				EditorUtility.SetDirty(target);
+			}
+
+			// `ReorderableList` References
 			// https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
 			// https://va.lent.in/unity-make-your-lists-functional-with-reorderablelist/
+			// https://github.com/ButtonFactoryGames/BF_SubclassListAttribute
 			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
 			_propertiesList = new ReorderableList(serializedObject, properties, true, true, true, true)
 			{
