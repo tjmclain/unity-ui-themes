@@ -45,9 +45,7 @@ public class ImageTypeFillOriginPropertyDrawer : ImageTypeFieldPropertyDrawer
 			return;
 		}
 
-		var fillOriginAttribute = attribute as ImageTypeFillOriginAttribute;
-		string fillMethodPropertyName = fillOriginAttribute.FillMethodPropertyName;
-		var fillMethodProperty = property.serializedObject.FindProperty(fillMethodPropertyName);
+		var fillMethodProperty = property.GetSiblingProperty(ImageType.FillMethodPropertyName);
 		if (fillMethodProperty == null)
 		{
 			return;

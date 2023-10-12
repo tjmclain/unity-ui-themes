@@ -8,13 +8,15 @@ public abstract class Style : ScriptableObject
 	[SerializeField]
 	private string _className = "";
 
-	[SerializeField, HideInInspector]
+	[SerializeReference]
 	private List<StyleProperty> _properties = new();
 
 	public abstract Dictionary<string, System.Type> PropertyDefinitions { get; }
 
 	public string ClassName => _className;
 	public List<StyleProperty> Properties => _properties;
+
+	public static string PropertiesFieldName => nameof(_properties);
 
 	public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
 	{
@@ -25,7 +27,7 @@ public abstract class Style : ScriptableObject
 			return false;
 		}
 
-		int index = _properties.FindIndex(x => x.name == propertyName);
+		int index = _properties.FindIndex(x => x != null && x.Name == propertyName);
 		if (index < 0)
 		{
 			property = default;

@@ -46,7 +46,7 @@ namespace Myna.Unity.Themes
 			if (style.TryGetProperty(ImageStyle.PropertyNames.SourceImage,
 				out SpriteProperty spriteProperty))
 			{
-				_image.sprite = _overrideSourceImage.OverrideOrDefaultValue(spriteProperty.Sprite);
+				_image.sprite = _overrideSourceImage.OverrideOrDefaultValue(spriteProperty.Value);
 			}
 
 			// Color
@@ -65,7 +65,7 @@ namespace Myna.Unity.Themes
 			if (!_overrideImageType && style.TryGetProperty(ImageStyle.PropertyNames.ImageType,
 				out ImageTypeProperty imageTypeProperty))
 			{
-				imageTypeProperty.Apply(_image);
+				imageTypeProperty.Value.Apply(_image);
 			}
 		}
 	}

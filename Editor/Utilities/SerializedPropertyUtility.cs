@@ -4,7 +4,7 @@ using UnityEditor;
 
 public static class SerializedPropertyUtility
 {
-	public static List<SerializedProperty> GetDirectChildren(SerializedProperty property)
+	public static List<SerializedProperty> GetDirectChildren(this SerializedProperty property)
 	{
 		var children = new List<SerializedProperty>();
 
@@ -30,5 +30,15 @@ public static class SerializedPropertyUtility
 		}
 
 		return children;
+	}
+
+	public static SerializedProperty GetSiblingProperty(this SerializedProperty property, string siblingName)
+	{
+		string path = property.propertyPath;
+		string name = property.name;
+		int startIndex = path.Length - name.Length;
+		string siblingPath = $"{path.Substring(0, startIndex)}{siblingName}";
+
+		return property.serializedObject.FindProperty(siblingPath);
 	}
 }

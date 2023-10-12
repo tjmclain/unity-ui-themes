@@ -30,10 +30,9 @@ public class ImageTypeFieldPropertyDrawer : PropertyDrawer
 	protected virtual bool ShowProperty(SerializedProperty property)
 	{
 		var fieldAttribute = attribute as ImageTypeFieldAttribute;
-		string typePropertyName = fieldAttribute.TypePropertyName;
 		var visibleInTypes = fieldAttribute.VisibleInTypes;
 		var serializedObject = property.serializedObject;
-		var imageTypeProperty = serializedObject.FindProperty(typePropertyName);
+		var imageTypeProperty = property.GetSiblingProperty(ImageType.TypePropertyName);
 		var imageType = (Image.Type)imageTypeProperty.enumValueIndex;
 		return System.Array.Exists(visibleInTypes, x => x == imageType);
 	}

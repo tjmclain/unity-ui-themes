@@ -14,9 +14,7 @@ public class ImageTypeFillClockwisePropertyDrawer : ImageTypeFieldPropertyDrawer
 			return false;
 		}
 
-		var fillClockwiseAttribute = attribute as ImageTypeFillClockwiseAttribute;
-		string fillMethodPropertyName = fillClockwiseAttribute.FillMethodPropertyName;
-		var fillMethodProperty = property.serializedObject.FindProperty(fillMethodPropertyName);
+		var fillMethodProperty = property.GetSiblingProperty(ImageType.FillMethodPropertyName);
 		if (fillMethodProperty == null)
 		{
 			return false;

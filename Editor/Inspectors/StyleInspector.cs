@@ -2,199 +2,193 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using System.Linq;
-using Myna.Unity.Themes;
+using UnityEditorInternal;
 using UnityEditor.SceneManagement;
+using System.Linq;
+using System;
+using System.Reflection;
 
-[CustomEditor(typeof(Style), true)]
-public class StyleInspector : Editor
+namespace Myna.Unity.Themes.Editor
 {
-	private int _selectedPropertyIndex = -1;
+	using static UnityEditorInternal.ReorderableList;
+	using static UnityEngine.GraphicsBuffer;
+	using UnityObject = UnityEngine.Object;
 
-	private Object[] GetSubAssets()
+	[CustomEditor(typeof(Style), true)]
+	public class StyleInspector : UnityEditor.Editor
 	{
-		string assetPath = AssetDatabase.GetAssetPath(target);
-		return AssetDatabase.LoadAllAssetRepresentationsAtPath(assetPath);
-	}
+		private AddPropertyButton _addPropertyButton = null;
+		private ReorderableList _propertiesList = null;
 
-	private SerializedProperty GetPropertiesListProperty()
-	{
-		return serializedObject.FindProperty("_properties");
-	}
-
-	public override void OnInspectorGUI()
-	{
-		base.OnInspectorGUI();
-
-		DrawPropertiesList();
-
-		if (serializedObject.ApplyModifiedProperties())
+		public override void OnInspectorGUI()
 		{
-			ApplyStylesInScene();
-		}
-	}
+			base.OnInspectorGUI();
 
-	private void OnEnable()
-	{
-		RefreshProperties();
-	}
+			// properties list
+			//var properties = serializedObject.FindProperty("_properties");
+			//if (properties == null)
+			//{
+			//	return;
+			//}
+			//EditorGUILayout.PropertyField(properties);
 
-	private void DrawPropertiesList()
-	{
-		EditorGUILayout.LabelField("Properties", EditorStyles.boldLabel);
-		var propertiesList = GetPropertiesListProperty();
+			_propertiesList.DoLayoutList();
 
-		EditorGUI.indentLevel++;
-		for (int i = 0; i < propertiesList.arraySize; i++)
-		{
-			var element = propertiesList.GetArrayElementAtIndex(i);
-			var asset = element.objectReferenceValue;
+			// add property button
+			_addPropertyButton.Draw();
 
-			if (asset == null)
+			if (serializedObject.ApplyModifiedProperties())
 			{
-				propertiesList.DeleteArrayElementAtIndex(i);
-				i--;
-				continue;
-			}
-
-			EditorGUILayout.BeginHorizontal();
-
-			element.isExpanded = EditorGUILayout.Foldout(element.isExpanded, asset.name);
-			bool delete = GUILayout.Button("—", GUILayout.ExpandWidth(false));
-
-			EditorGUILayout.EndHorizontal();
-			if (!element.isExpanded)
-			{
-				continue;
-			}
-
-			EditorGUILayout.BeginVertical(EditorStyles.textArea);
-
-			EditorGUI.indentLevel++;
-
-			EditorGUI.BeginChangeCheck();
-			var editor = CreateEditor(asset);
-			editor.OnInspectorGUI();
-			if (EditorGUI.EndChangeCheck())
-			{
-				//Debug.Log("changed!");
 				ApplyStylesInScene();
 			}
+		}
 
-			EditorGUI.indentLevel--;
+		private void OnEnable()
+		{
+			_addPropertyButton = new AddPropertyButton(target);
 
-			EditorGUILayout.EndVertical();
+			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			_propertiesList = new ReorderableList(serializedObject, properties, true, true, true, true);
+			_propertiesList.drawHeaderCallback = DrawHeader;
+			_propertiesList.drawElementCallback = DrawElement;
+			_propertiesList.elementHeightCallback = GetElementHeight;
+			_propertiesList.onAddDropdownCallback = AddDropdown;
+		}
 
-			if (delete)
+		private void DrawHeader(Rect rect)
+		{
+			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			EditorGUI.LabelField(rect, new GUIContent(properties.displayName), EditorStyles.boldLabel);
+		}
+
+		private void AddDropdown(Rect buttonRect, ReorderableList list)
+		{
+			var menu = new GenericMenu();
+			var style = target as Style;
+			var options = style.PropertyDefinitions.Keys
+				.Select(x => new GUIContent(x))
+				.ToArray();
+
+			foreach (var option in options)
 			{
-				Undo.DestroyObjectImmediate(asset);
+				menu.AddItem(option, false, OnAddProperty, option.text);
+			}
 
-				AssetDatabase.SaveAssets();
-				AssetDatabase.Refresh();
+			menu.ShowAsContext();
+		}
 
-				RefreshProperties();
+		private void OnAddProperty(object userData)
+		{
+			string propertyName = userData.ToString();
+			var style = target as Style;
+			var type = style.PropertyDefinitions[propertyName];
+			var property = Activator.CreateInstance(type) as StyleProperty;
+			property.Name = propertyName;
 
-				Repaint();
+			Undo.RecordObject(target, "Add Property");
+			style.Properties.Add(property);
+			EditorUtility.SetDirty(target);
+		}
 
-				break;
+		private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
+		{
+			static void DrawPropertyRecursive(SerializedProperty property, ref Rect rect)
+			{
+				float height = property.hasChildren
+					? EditorGUIUtility.singleLineHeight
+					: EditorGUI.GetPropertyHeight(property);
+
+				rect.height = height;
+
+				EditorGUI.PropertyField(rect, property);
+
+				rect.y += EditorGUIUtility.standardVerticalSpacing;
+				rect.y += height;
+
+				if (!property.isExpanded)
+				{
+					return;
+				}
+
+				EditorGUI.indentLevel++;
+
+				var children = property.GetDirectChildren();
+				foreach (var child in children)
+				{
+					DrawPropertyRecursive(child, ref rect);
+				}
+
+				EditorGUI.indentLevel--;
+			}
+
+			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			var property = properties.GetArrayElementAtIndex(index);
+
+			DrawPropertyRecursive(property, ref rect);
+		}
+
+		private float GetElementHeight(int index)
+		{
+			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			var property = properties.GetArrayElementAtIndex(index);
+			return EditorGUI.GetPropertyHeight(property);
+		}
+
+		private void ApplyStylesInScene()
+		{
+			var stageHandle = StageUtility.GetCurrentStageHandle();
+			var styleHelpers = stageHandle.FindComponentsOfType<StyleHelper>();
+			foreach (var styleHelper in styleHelpers)
+			{
+				styleHelper.ApplyStyle();
 			}
 		}
 
-		EditorGUI.indentLevel--;
-
-		// Add Property button
-		var themeStyle = target as Style;
-		var propertyNames = themeStyle.PropertyDefinitions.Keys
-			.Where(x => !themeStyle.Properties.Exists(y => y.name == x))
-			.ToArray();
-
-		if (propertyNames.Length == 0)
+		private class AddPropertyButton
 		{
-			return;
-		}
+			private UnityObject _target = null;
+			private int _index = -1;
 
-		_selectedPropertyIndex = Mathf.Clamp(_selectedPropertyIndex, 0, propertyNames.Length - 1);
-
-		EditorGUILayout.BeginHorizontal();
-		{
-			_selectedPropertyIndex = EditorGUILayout.Popup(_selectedPropertyIndex, propertyNames);
-			if (GUILayout.Button("Add", GUILayout.ExpandWidth(false)))
+			public AddPropertyButton(UnityObject target)
 			{
-				string propertyName = propertyNames[_selectedPropertyIndex];
-				AddProperty(propertyName);
+				_target = target;
 			}
-		}
-		EditorGUILayout.EndHorizontal();
-	}
 
-	private void AddProperty(string propertyName)
-	{
-		if (string.IsNullOrEmpty(propertyName))
-		{
-			Debug.LogError($"{nameof(propertyName)} is null or empty", target);
-			return;
-		}
+			public void Draw()
+			{
+				var style = _target as Style;
+				if (style == null)
+				{
+					Debug.LogError($"{nameof(_target)} is not {nameof(Style)}");
+					return;
+				}
 
-		if (target is not Style themeStyle)
-		{
-			Debug.LogError($"{nameof(target)} is not {nameof(Style)}", target);
-			return;
-		}
+				var propertyNames = style.PropertyDefinitions.Keys
+					.Where(x => !style.Properties.Exists(y => y.Name == x))
+					.ToArray();
 
-		if (!themeStyle.PropertyDefinitions.TryGetValue(propertyName, out var propertyType))
-		{
-			Debug.LogError($"!{nameof(Style.PropertyDefinitions)}.TryGetValue '{propertyName}'", target);
-			return;
-		}
+				if (propertyNames.Length == 0)
+				{
+					return;
+				}
 
-		if (!typeof(StyleProperty).IsAssignableFrom(propertyType))
-		{
-			Debug.LogError($"{propertyType} is not subclass of {nameof(StyleProperty)}");
-			return;
-		}
+				_index = Mathf.Clamp(_index, 0, propertyNames.Length - 1);
 
-		var property = CreateInstance(propertyType) as StyleProperty;
-		property.name = propertyName;
+				EditorGUILayout.BeginHorizontal();
+				_index = EditorGUILayout.Popup(_index, propertyNames);
+				if (GUILayout.Button("Add", GUILayout.ExpandWidth(false)))
+				{
+					string propertyName = propertyNames[_index];
+					var type = style.PropertyDefinitions[propertyName];
+					var property = Activator.CreateInstance(type) as StyleProperty;
+					property.Name = propertyName;
 
-		Undo.RegisterCreatedObjectUndo(property, "Add StyleProperty");
-		AssetDatabase.AddObjectToAsset(property, target);
-
-		AssetDatabase.SaveAssets();
-		AssetDatabase.Refresh();
-
-		RefreshProperties();
-
-		Repaint();
-	}
-
-	private void RefreshProperties()
-	{
-		var properties = GetSubAssets()
-			.Select(x => x as StyleProperty)
-			.ToArray();
-
-		var propertiesList = GetPropertiesListProperty();
-		propertiesList.arraySize = properties.Length;
-
-		for (int i = 0; i < properties.Length; i++)
-		{
-			var propertyListElement = propertiesList.GetArrayElementAtIndex(i);
-			propertyListElement.objectReferenceValue = properties[i];
-		}
-
-		if (serializedObject.ApplyModifiedProperties())
-		{
-			ApplyStylesInScene();
-		}
-	}
-
-	private void ApplyStylesInScene()
-	{
-		var stageHandle = StageUtility.GetCurrentStageHandle();
-		var styleHelpers = stageHandle.FindComponentsOfType<StyleHelper>();
-		foreach (var styleHelper in styleHelpers)
-		{
-			styleHelper.ApplyStyle();
+					Undo.RecordObject(_target, "Add Property");
+					style.Properties.Add(property);
+					EditorUtility.SetDirty(_target);
+				}
+				EditorGUILayout.EndHorizontal();
+			}
 		}
 	}
 }

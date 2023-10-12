@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Myna.Unity.Themes;
 using UnityEngine;
 
-public class ColorProperty : StyleProperty
+[System.Serializable]
+public class ColorProperty : StyleProperty<Color>
 {
 	[SerializeField, ColorName]
 	private string _colorName = string.Empty;
