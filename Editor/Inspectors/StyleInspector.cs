@@ -2,16 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEditor.SceneManagement;
 using System.Linq;
 using System;
-using System.Reflection;
 
 namespace Myna.Unity.Themes.Editor
 {
-	using static UnityEditorInternal.ReorderableList;
-	using static UnityEngine.GraphicsBuffer;
+	using ReorderableList = UnityEditorInternal.ReorderableList;
 	using UnityObject = UnityEngine.Object;
 
 	[CustomEditor(typeof(Style), true)]
@@ -47,6 +44,9 @@ namespace Myna.Unity.Themes.Editor
 		{
 			_addPropertyButton = new AddPropertyButton(target);
 
+			// TODO: move this to custom property drawer class
+			// https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
+			// https://va.lent.in/unity-make-your-lists-functional-with-reorderablelist/
 			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
 			_propertiesList = new ReorderableList(serializedObject, properties, true, true, true, true);
 			_propertiesList.drawHeaderCallback = DrawHeader;
@@ -58,7 +58,7 @@ namespace Myna.Unity.Themes.Editor
 		private void DrawHeader(Rect rect)
 		{
 			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
-			EditorGUI.LabelField(rect, new GUIContent(properties.displayName), EditorStyles.boldLabel);
+			EditorGUI.LabelField(rect, EditorGUIUtility.TrTextContent(properties.displayName), EditorStyles.boldLabel);
 		}
 
 		private void AddDropdown(Rect buttonRect, ReorderableList list)
@@ -92,39 +92,71 @@ namespace Myna.Unity.Themes.Editor
 
 		private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
 		{
-			static void DrawPropertyRecursive(SerializedProperty property, ref Rect rect)
+			//static void DrawPropertyRecursive(SerializedProperty property, ref Rect rect)
+			//{
+			//	float height = property.hasChildren
+			//		? EditorGUIUtility.singleLineHeight
+			//		: EditorGUI.GetPropertyHeight(property);
+
+			//	rect.height = height;
+
+			//	EditorGUI.PropertyField(rect, property);
+
+			//	rect.y += EditorGUIUtility.standardVerticalSpacing;
+			//	rect.y += height;
+
+			//	if (!property.isExpanded)
+			//	{
+			//		return;
+			//	}
+
+			//	EditorGUI.indentLevel++;
+
+			//	var children = property.GetDirectChildren();
+			//	foreach (var child in children)
+			//	{
+			//		DrawPropertyRecursive(child, ref rect);
+			//	}
+
+			//	EditorGUI.indentLevel--;
+			//}
+
+			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			var property = properties.GetArrayElementAtIndex(index);
+
+			float height = EditorGUIUtility.singleLineHeight;
+			rect.height = height;
+			EditorGUI.indentLevel++;
+			EditorGUI.PropertyField(rect, property);
+
+			if (property.isExpanded)
 			{
-				float height = property.hasChildren
-					? EditorGUIUtility.singleLineHeight
-					: EditorGUI.GetPropertyHeight(property);
-
-				rect.height = height;
-
-				EditorGUI.PropertyField(rect, property);
-
-				rect.y += EditorGUIUtility.standardVerticalSpacing;
 				rect.y += height;
-
-				if (!property.isExpanded)
-				{
-					return;
-				}
+				rect.y += EditorGUIUtility.standardVerticalSpacing;
 
 				EditorGUI.indentLevel++;
 
 				var children = property.GetDirectChildren();
 				foreach (var child in children)
 				{
-					DrawPropertyRecursive(child, ref rect);
+					height = EditorGUI.GetPropertyHeight(child);
+					rect.height = height;
+
+					EditorGUI.PropertyField(rect, child);
+
+					rect.y += height;
+					rect.y += EditorGUIUtility.standardVerticalSpacing;
 				}
 
 				EditorGUI.indentLevel--;
 			}
 
-			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
-			var property = properties.GetArrayElementAtIndex(index);
+			EditorGUI.indentLevel--;
 
-			DrawPropertyRecursive(property, ref rect);
+			//float height = EditorGUI.GetPropertyHeight(property);
+
+			//DrawPropertyRecursive(property, ref rect);
+			//EditorGUI.indentLevel--;
 		}
 
 		private float GetElementHeight(int index)

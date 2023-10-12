@@ -7,7 +7,7 @@ using UnityEditor;
 using System.Linq;
 
 [CustomPropertyDrawer(typeof(ImageTypeFillOriginAttribute))]
-public class ImageTypeFillOriginPropertyDrawer : ImageTypeFieldPropertyDrawer
+public class ImageTypeFillOriginPropertyDrawer : PropertyDrawer
 {
 	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 	{
@@ -38,11 +38,6 @@ public class ImageTypeFillOriginPropertyDrawer : ImageTypeFieldPropertyDrawer
 
 			type = default;
 			return false;
-		}
-
-		if (!ShowProperty(property))
-		{
-			return;
 		}
 
 		var fillMethodProperty = property.GetSiblingProperty(ImageType.FillMethodPropertyName);

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 
 public static class SerializedPropertyUtility
@@ -40,5 +41,10 @@ public static class SerializedPropertyUtility
 		string siblingPath = $"{path.Substring(0, startIndex)}{siblingName}";
 
 		return property.serializedObject.FindProperty(siblingPath);
+	}
+
+	public static bool TryGetMemberInfo(this SerializedProperty property, out MemberInfo memberInfo)
+	{
+		return ReflectionUtility.TryGetMemberRelative(property.serializedObject.targetObject, property.propertyPath, out memberInfo);
 	}
 }

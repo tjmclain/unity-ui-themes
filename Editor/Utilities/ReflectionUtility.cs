@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using UnityEngine;
+using System.IO;
 
 // TODO: not sure if I still need this; I might be able to just delete this
 public static class ReflectionUtility
 {
-	public static bool TryGetReflectedValue<T>(Object root, string path, out T value)
+	public static bool TryGetMemberValueRelative<T>(Object root, string memberPath, out T value)
 	{
-		if (!TryGetReflectedValue(root, path, out var result))
+		if (!TryGetMemberValueRelative(root, memberPath, out var result))
 		{
 			value = default;
 			return false;
@@ -17,7 +18,7 @@ public static class ReflectionUtility
 
 		if (result is not T convertedResult)
 		{
-			Debug.LogError($"{nameof(value)} at {path} is {result.GetType()}, not {typeof(T).Name}", root);
+			Debug.LogError($"{nameof(value)} at {memberPath} is {result.GetType()}, not {typeof(T).Name}", root);
 			value = default;
 			return false;
 		}
@@ -26,7 +27,7 @@ public static class ReflectionUtility
 		return true;
 	}
 
-	public static bool TryGetReflectedValue(Object root, string path, out object value)
+	public static bool TryGetMemberValueRelative(Object root, string memberPath, out object value)
 	{
 		if (root == null)
 		{
@@ -34,19 +35,19 @@ public static class ReflectionUtility
 			return false;
 		}
 
-		if (string.IsNullOrEmpty(path))
+		if (string.IsNullOrEmpty(memberPath))
 		{
 			value = default;
 			return false;
 		}
 
 		object target = root;
-		var memberNames = path.Split('.');
+		var memberNames = memberPath.Split('.');
 		foreach (var memberName in memberNames)
 		{
 			if (!TryGetMemberValue(target, memberName, out object result))
 			{
-				Debug.LogError($"Could not find {memberName} in {path}", root);
+				Debug.LogError($"Could not find {memberName} in {memberPath}", root);
 				value = default;
 				return false;
 			}
@@ -58,25 +59,80 @@ public static class ReflectionUtility
 		return true;
 	}
 
-	public static bool TryGetMemberValue(object target, string memberName, out object value)
+	public static bool TryGetMemberRelative(Object root, string memberPath, out MemberInfo member)
+	{
+		member = default;
+
+		if (root == null)
+		{
+			return false;
+		}
+
+		if (string.IsNullOrEmpty(memberPath))
+		{
+			return false;
+		}
+
+		object target = root;
+		var memberNames = memberPath.Split('.');
+		foreach (var memberName in memberNames)
+		{
+			if (!TryGetMember(target, memberName, out member))
+			{
+				Debug.LogError($"Could not find {memberName} in {memberPath}", root);
+				member = default;
+				return false;
+			}
+
+			if (!TryGetMemberValue(target, member, out target))
+			{
+				Debug.LogError($"Could not get value for {memberName} in {memberPath}", root);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static bool TryGetMember(object target, string memberName, out MemberInfo value)
 	{
 		var type = target.GetType();
 		var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-
-		// Try getting value from FieldInfo
-		var field = type.GetField(memberName, flags);
-		if (field != null)
+		var members = type.GetMember(memberName, flags);
+		if (members == null || members.Length == 0)
 		{
-			value = field.GetValue(target);
-			return true;
+			value = default;
+			return false;
 		}
 
-		// Try getting value from PropertyInfo
-		var property = type.GetProperty(memberName, flags);
-		if (property != null)
+		value = members[0];
+		return true;
+	}
+
+	private static bool TryGetMemberValue(object target, string memberName, out object value)
+	{
+		if (!TryGetMember(target, memberName, out MemberInfo member))
 		{
-			value = property.GetValue(target);
-			return true;
+			value = default;
+			return false;
+		}
+
+		return TryGetMemberValue(target, member, out value);
+	}
+
+	private static bool TryGetMemberValue(object target, MemberInfo member, out object value)
+	{
+		switch (member.MemberType)
+		{
+			case MemberTypes.Field:
+				var field = member as FieldInfo;
+				value = field.GetValue(target);
+				return true;
+
+			case MemberTypes.Property:
+				var property = member as PropertyInfo;
+				value = property.GetValue(target);
+				return true;
 		}
 
 		value = default;

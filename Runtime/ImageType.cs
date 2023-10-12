@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 [System.Serializable]
@@ -36,6 +37,9 @@ public class ImageType
 
 	public static readonly string TypePropertyName = nameof(_type);
 	public static readonly string FillMethodPropertyName = nameof(_fillMethod);
+
+	public Image.Type Type => _type;
+	public Image.FillMethod FillMethod => _fillMethod;
 
 	public void Apply(Image image)
 	{
