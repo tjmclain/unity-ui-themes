@@ -13,12 +13,12 @@ public class ImageTypeFieldAttribute : PropertyAttribute
 
 #if UNITY_EDITOR
 
-	public virtual bool IsVisible(UnityEditor.SerializedProperty property)
+	public virtual bool IsVisible(UnityEditor.SerializedProperty imageTypeProperty)
 	{
-		var imageType = property.FindPropertyRelative(ImageType.TypePropertyName);
+		var imageType = imageTypeProperty.FindPropertyRelative(ImageType.TypePropertyName);
 		if (imageType == null)
 		{
-			Debug.LogWarning($"imageType == null; property = {property.name}");
+			Debug.LogWarning($"imageType == null; property = {imageTypeProperty.name}");
 			return false;
 		}
 

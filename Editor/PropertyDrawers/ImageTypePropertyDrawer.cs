@@ -52,13 +52,13 @@ public class ImageTypePropertyDrawer : PropertyDrawer
 		return height;
 	}
 
-	private bool IsVisible(SerializedProperty root, SerializedProperty child)
+	private bool IsVisible(SerializedProperty imageTypeProperty, SerializedProperty property)
 	{
 		var flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-		var fieldInfo = typeof(ImageType).GetField(child.name, flags);
+		var fieldInfo = typeof(ImageType).GetField(property.name, flags);
 		if (fieldInfo == null)
 		{
-			Debug.LogError($"{nameof(ImageType)} does not contain field '{child.name}'");
+			Debug.LogError($"{nameof(ImageType)} does not contain field '{property.name}'");
 			return false;
 		}
 
@@ -68,6 +68,6 @@ public class ImageTypePropertyDrawer : PropertyDrawer
 			return true;
 		}
 
-		return attribute.IsVisible(root);
+		return attribute.IsVisible(imageTypeProperty);
 	}
 }
