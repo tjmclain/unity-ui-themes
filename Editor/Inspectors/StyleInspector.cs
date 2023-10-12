@@ -18,7 +18,8 @@ namespace Myna.Unity.Themes.Editor
 
 		public override void OnInspectorGUI()
 		{
-			base.OnInspectorGUI();
+			var className = serializedObject.FindProperty(Style.ClassNameFieldName);
+			EditorGUILayout.PropertyField(className);
 
 			_propertiesList.DoLayoutList();
 
@@ -45,7 +46,7 @@ namespace Myna.Unity.Themes.Editor
 
 		private void DrawHeader(Rect rect)
 		{
-			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			var properties = _propertiesList.serializedProperty;
 			EditorGUI.LabelField(rect, EditorGUIUtility.TrTextContent(properties.displayName), EditorStyles.boldLabel);
 		}
 
@@ -70,17 +71,22 @@ namespace Myna.Unity.Themes.Editor
 			string propertyName = userData.ToString();
 			var style = target as Style;
 			var type = style.PropertyDefinitions[propertyName];
-			var property = Activator.CreateInstance(type) as StyleProperty;
-			property.Name = propertyName;
+			var instance = Activator.CreateInstance(type) as StyleProperty;
+			instance.Name = propertyName;
 
-			Undo.RecordObject(target, "Add Property");
-			style.Properties.Add(property);
-			EditorUtility.SetDirty(target);
+			var properties = _propertiesList.serializedProperty;
+			int index = properties.arraySize;
+			properties.arraySize++;
+
+			var property = properties.GetArrayElementAtIndex(index);
+			property.managedReferenceValue = instance;
+
+			serializedObject.ApplyModifiedProperties();
 		}
 
 		private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
 		{
-			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			var properties = _propertiesList.serializedProperty;
 			var property = properties.GetArrayElementAtIndex(index);
 
 			EditorGUI.indentLevel++;
@@ -90,7 +96,7 @@ namespace Myna.Unity.Themes.Editor
 
 		private float GetElementHeight(int index)
 		{
-			var properties = serializedObject.FindProperty(Style.PropertiesFieldName);
+			var properties = _propertiesList.serializedProperty;
 			var property = properties.GetArrayElementAtIndex(index);
 			return EditorGUI.GetPropertyHeight(property);
 		}

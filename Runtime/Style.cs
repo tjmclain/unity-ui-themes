@@ -16,6 +16,7 @@ public abstract class Style : ScriptableObject
 	public string ClassName => _className;
 	public List<StyleProperty> Properties => _properties;
 
+	public static string ClassNameFieldName => nameof(_className);
 	public static string PropertiesFieldName => nameof(_properties);
 
 	public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
