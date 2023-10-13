@@ -19,6 +19,8 @@ namespace Myna.Unity.Themes
 
 		private ColorScheme _activeColorScheme = null;
 
+		public static string StylesPropertyName => nameof(_styles);
+
 		public ColorScheme DefaultColorScheme => _defaultColorScheme;
 		public ColorScheme ActiveColorScheme => _activeColorScheme != null ? _activeColorScheme : _defaultColorScheme;
 		public ColorScheme[] ColorSchemes => _colorSchemes;
