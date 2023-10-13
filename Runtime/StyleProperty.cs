@@ -2,24 +2,35 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class StyleProperty
+namespace Myna.Unity.Themes
 {
-	[SerializeField, HideInInspector]
-	private string _name;
-
-	public string Name
+	[System.Serializable]
+	public class StyleProperty
 	{
-		get => _name;
-		set => _name = value;
+		[SerializeField, HideInInspector]
+		protected string _name;
+
+		public string Name
+		{
+			get => _name;
+			set => _name = value;
+		}
+
+		public virtual object GetValue(Theme theme)
+		{
+			throw new System.NotImplementedException();
+		}
 	}
-}
 
-[System.Serializable]
-public class StyleProperty<T> : StyleProperty
-{
-	[SerializeField]
-	private T _value;
+	[System.Serializable]
+	public class StyleProperty<T> : StyleProperty
+	{
+		[SerializeField]
+		private T _value;
 
-	public T Value => _value;
+		public override object GetValue(Theme theme)
+		{
+			return _value;
+		}
+	}
 }

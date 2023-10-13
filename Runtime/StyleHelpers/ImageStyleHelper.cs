@@ -46,7 +46,8 @@ namespace Myna.Unity.Themes
 			if (style.TryGetProperty(ImageStyle.PropertyNames.SourceImage,
 				out SpriteProperty spriteProperty))
 			{
-				_image.sprite = _overrideSourceImage.OverrideOrDefaultValue(spriteProperty.Value);
+				var sprite = spriteProperty.GetValue(Theme) as Sprite;
+				_image.sprite = _overrideSourceImage.OverrideOrDefaultValue(sprite);
 			}
 
 			// Color
@@ -54,7 +55,7 @@ namespace Myna.Unity.Themes
 			if (style.TryGetProperty(ImageStyle.PropertyNames.Color,
 				out ColorProperty colorProperty))
 			{
-				color = colorProperty.GetColor(Theme);
+				color = (Color)colorProperty.GetValue(Theme);
 			}
 
 			color = _overrideColor.OverrideOrDefaultValue(color);
@@ -65,7 +66,8 @@ namespace Myna.Unity.Themes
 			if (!_overrideImageType && style.TryGetProperty(ImageStyle.PropertyNames.ImageType,
 				out ImageTypeProperty imageTypeProperty))
 			{
-				imageTypeProperty.Value.Apply(_image);
+				var imageType = imageTypeProperty.GetValue(Theme) as ImageType;
+				imageType.Apply(_image);
 			}
 		}
 	}

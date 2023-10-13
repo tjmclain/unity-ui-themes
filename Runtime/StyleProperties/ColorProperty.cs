@@ -4,8 +4,11 @@ using Myna.Unity.Themes;
 using UnityEngine;
 
 [System.Serializable]
-public class ColorProperty : StyleProperty<Color>
+public class ColorProperty : StyleProperty
 {
+	[SerializeField, ColorSchemeReference]
+	private ColorScheme _referenceColorScheme;
+
 	[SerializeField, ColorName]
 	private string _colorName = string.Empty;
 
@@ -15,9 +18,10 @@ public class ColorProperty : StyleProperty<Color>
 	public string ColorName => _colorName;
 	public Color FallbackColor => _fallbackColor;
 
-	public Color GetColor(Theme theme)
+	public override object GetValue(Theme theme)
 	{
-		return theme.TryGetColorByGuid(_colorName, out var color) || theme.TryGetColor(_colorName, out color)
-			? color : _fallbackColor;
+		return theme.TryGetColorByGuid(_colorName, out var color)
+			|| theme.TryGetColor(_colorName, out color)
+			? color : FallbackColor;
 	}
 }

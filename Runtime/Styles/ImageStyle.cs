@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Myna.Unity.Themes;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "ImageStyle", menuName = "UI Themes/Style - Image")]

@@ -2,24 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEngine.UIElements;
 
-[CustomPropertyDrawer(typeof(StyleProperty), true)]
-public class StylePropertyDrawer : PropertyDrawer
+namespace Myna.Unity.Themes.Editor
 {
-	public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+	[CustomPropertyDrawer(typeof(StyleProperty), true)]
+	public class StylePropertyDrawer : PropertyDrawer
 	{
-		var children = property.GetDirectChildren();
-		property = children.Count == 1 ? children[0] : property;
+		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		{
+			var children = property.GetDirectChildren();
+			property = children.Count == 1 ? children[0] : property;
 
-		EditorGUI.PropertyField(position, property, label, true);
-	}
+			EditorGUI.PropertyField(position, property, label, true);
+		}
 
-	public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-	{
-		var children = property.GetDirectChildren();
-		property = children.Count == 1 ? children[0] : property;
+		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+		{
+			var children = property.GetDirectChildren();
+			property = children.Count == 1 ? children[0] : property;
 
-		return EditorGUI.GetPropertyHeight(property);
+			return EditorGUI.GetPropertyHeight(property);
+		}
 	}
 }

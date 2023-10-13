@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-public class ImageTypeProperty : StyleProperty<ImageType>
+namespace Myna.Unity.Themes
 {
+	[System.Serializable]
+	public class ImageTypeProperty : StyleProperty<ImageType>
+	{
+	}
 }
