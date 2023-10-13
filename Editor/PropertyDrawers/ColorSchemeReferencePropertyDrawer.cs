@@ -10,8 +10,6 @@ namespace Myna.Unity.Themes.Editor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			
-
 			EditorGUI.PropertyField(position, property, label);
 
 			if (property.objectReferenceValue == null)
