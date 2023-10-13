@@ -24,25 +24,42 @@ public class ImageTypePropertyDrawer : PropertyDrawer
 			rect.y += EditorGUIUtility.standardVerticalSpacing;
 		}
 
+		var rect = new Rect(position)
+		{
+			height = EditorGUIUtility.singleLineHeight
+		};
+		EditorGUI.PropertyField(rect, property, false);
+
+		if (!property.isExpanded)
+		{
+			return;
+		}
+
+		rect.y += EditorGUIUtility.singleLineHeight;
+		rect.y += EditorGUIUtility.standardVerticalSpacing;
+
 		var children = property.GetDirectChildren()
-			.Where(x => x.name != ImageType.TypePropertyName)
 			.Where(x => IsVisible(property, x));
 
-		var imageType = property.FindPropertyRelative(ImageType.TypePropertyName);
-		DrawProperty(imageType, label, ref position);
-
+		EditorGUI.indentLevel++;
 		foreach (var child in children)
 		{
-			DrawProperty(child, EditorGUIUtility.TrTextContent(child.displayName), ref position);
+			DrawProperty(child, EditorGUIUtility.TrTextContent(child.displayName), ref rect);
 		}
+		EditorGUI.indentLevel--;
 	}
 
 	public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 	{
+		if (!property.isExpanded)
+		{
+			return EditorGUI.GetPropertyHeight(property);
+		}
+
 		var children = property.GetDirectChildren()
 			.Where(x => IsVisible(property, x));
 
-		float height = 0f;
+		float height = EditorGUIUtility.singleLineHeight;
 		foreach (var child in children)
 		{
 			height += EditorGUI.GetPropertyHeight(child);
