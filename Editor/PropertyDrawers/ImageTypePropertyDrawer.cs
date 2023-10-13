@@ -28,7 +28,7 @@ public class ImageTypePropertyDrawer : PropertyDrawer
 		{
 			height = EditorGUIUtility.singleLineHeight
 		};
-		EditorGUI.PropertyField(rect, property, false);
+		EditorGUI.PropertyField(rect, property, label, false);
 
 		if (!property.isExpanded)
 		{
