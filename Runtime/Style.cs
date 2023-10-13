@@ -21,11 +21,28 @@ namespace Myna.Unity.Themes
 		public static string ClassNameFieldName => nameof(_className);
 		public static string PropertiesFieldName => nameof(_properties);
 
-		public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
+		public T GetPropertyValue<T>(string propertyName, Theme theme, T defaultValue)
+		{
+			if (!TryGetProperty(propertyName, out var property))
+			{
+				return defaultValue;
+			}
+
+			var value = property.GetValue(theme);
+			if (value is not T typedValue)
+			{
+				Debug.LogWarning($"value of {propertyName} is not {typeof(T).Name}", this);
+				return defaultValue;
+			}
+
+			return typedValue;
+		}
+
+		public bool TryGetProperty(string propertyName, out StyleProperty property)
 		{
 			if (string.IsNullOrEmpty(propertyName))
 			{
-				Debug.LogWarning($"{nameof(propertyName)} is null or empty", this);
+				Debug.LogError($"{nameof(propertyName)} is null or empty", this);
 				property = default;
 				return false;
 			}
@@ -33,13 +50,26 @@ namespace Myna.Unity.Themes
 			int index = _properties.FindIndex(x => x != null && x.Name == propertyName);
 			if (index < 0)
 			{
+				Debug.LogWarning($"{nameof(_properties)} does not contain '{propertyName}'");
 				property = default;
 				return false;
 			}
 
-			if (_properties[index] is not T typedProperty)
+			property = _properties[index];
+			return true;
+		}
+
+		public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
+		{
+			if (!TryGetProperty(propertyName, out StyleProperty untypedProperty))
 			{
-				Debug.LogWarning($"Property '{nameof(propertyName)}' is not {typeof(T).Name}");
+				property = default;
+				return false;
+			}
+
+			if (untypedProperty is not T typedProperty)
+			{
+				Debug.LogWarning($"Property '{nameof(propertyName)}' is not {typeof(T).Name}", this);
 				property = default;
 				return false;
 			}

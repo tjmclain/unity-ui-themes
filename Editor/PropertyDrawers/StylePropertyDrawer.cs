@@ -11,17 +11,17 @@ namespace Myna.Unity.Themes.Editor
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var children = property.GetDirectChildren();
-			property = children.Count == 1 ? children[0] : property;
+			var mainProperty = children.Count == 1 ? children[0] : property;
 
-			EditorGUI.PropertyField(position, property, label, true);
+			EditorGUI.PropertyField(position, mainProperty, label, true);
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
 			var children = property.GetDirectChildren();
-			property = children.Count == 1 ? children[0] : property;
+			var mainProperty = children.Count == 1 ? children[0] : property;
 
-			return EditorGUI.GetPropertyHeight(property);
+			return EditorGUI.GetPropertyHeight(mainProperty);
 		}
 	}
 }

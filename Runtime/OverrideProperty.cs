@@ -2,22 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class OverrideProperty
+namespace Myna.Unity.Themes
 {
-	[SerializeField, HideInInspector]
-	private bool _enabled = false;
-
-	public static string EnabledPropertyName => nameof(_enabled);
-
-	public bool Enabled => _enabled;
-}
-
-public abstract class OverrideProperty<T> : OverrideProperty
-{
-	public abstract T Value { get; }
-
-	public T OverrideOrDefaultValue(T defaultValue)
+	public abstract class OverrideProperty
 	{
-		return Enabled ? Value : defaultValue;
+		[SerializeField, HideInInspector]
+		private bool _enabled = false;
+
+		public static string EnabledPropertyName => nameof(_enabled);
+
+		public bool Enabled => _enabled;
+	}
+
+	[System.Serializable]
+	public class OverrideProperty<T> : OverrideProperty
+	{
+		[SerializeField]
+		private T _value;
+
+		public virtual T Value => _value;
+
+		public static string ValuePropertyName => nameof(_value);
+
+		public T OverrideOrDefaultValue(T defaultValue)
+		{
+			return Enabled ? Value : defaultValue;
+		}
 	}
 }

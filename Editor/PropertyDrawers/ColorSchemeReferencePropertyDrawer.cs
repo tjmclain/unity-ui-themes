@@ -10,13 +10,14 @@ namespace Myna.Unity.Themes.Editor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var colorScheme = property.objectReferenceValue;
-			if (colorScheme == null)
-			{
-				colorScheme = ProjectSettings.GetInstance().GetDefaultTheme().DefaultColorScheme;
-			}
+			
 
-			property.objectReferenceValue = EditorGUI.ObjectField(position, label, colorScheme, typeof(ColorScheme), false);
+			EditorGUI.PropertyField(position, property, label);
+
+			if (property.objectReferenceValue == null)
+			{
+				property.objectReferenceValue = ProjectSettings.GetInstance().GetDefaultTheme().DefaultColorScheme;
+			}
 		}
 	}
 }

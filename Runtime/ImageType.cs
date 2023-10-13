@@ -41,6 +41,26 @@ public class ImageType
 	public Image.Type Type => _type;
 	public Image.FillMethod FillMethod => _fillMethod;
 
+	public static ImageType FromImage(Image image)
+	{
+		var value = new ImageType();
+		value.CopyValuesFromImage(image);
+		return value;
+	}
+
+	public void CopyValuesFromImage(Image image)
+	{
+		_type = image.type;
+		_useSpriteMesh = image.useSpriteMesh;
+		_preserveAspect = image.preserveAspect;
+		_fillCenter = image.fillCenter;
+		_pixelsPerUnitMultiplier = image.pixelsPerUnitMultiplier;
+		_fillMethod = image.fillMethod;
+		_fillOrigin = image.fillOrigin;
+		_fillAmount = image.fillAmount;
+		_clockwise = image.fillClockwise;
+	}
+
 	public void Apply(Image image)
 	{
 		image.type = _type;

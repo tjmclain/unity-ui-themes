@@ -1,11 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using System.IO;
-using System.CodeDom;
-using System.Reflection;
-using System.Linq;
 
 namespace Myna.Unity.Themes.Editor
 {
@@ -20,21 +14,35 @@ namespace Myna.Unity.Themes.Editor
 			var enabledProperty = property.FindPropertyRelative(OverrideProperty.EnabledPropertyName);
 
 			var toggleSize = EditorStyles.toggle.CalcSize(GUIContent.none);
-
 			float buffer = EditorGUIUtility.singleLineHeight * 0.5f;
-
-			var valuePos = new Rect(position) { width = position.width - toggleSize.x - buffer };
+			var propertyPos = new Rect(position)
+			{
+				width = position.width - toggleSize.x - buffer
+			};
 			var enabledPos = new Rect(position)
 			{
-				x = position.x + valuePos.width + buffer,
+				x = position.x + propertyPos.width + buffer,
 				width = toggleSize.x,
 			};
 
 			EditorGUI.BeginDisabledGroup(!enabledProperty.boolValue);
-			EditorGUI.PropertyField(valuePos, mainProperty, label);
+			DrawMainProperty(propertyPos, mainProperty, label);
 			EditorGUI.EndDisabledGroup();
 
 			enabledProperty.boolValue = EditorGUI.Toggle(enabledPos, enabledProperty.boolValue);
+		}
+
+		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+		{
+			var children = SerializedPropertyUtility.GetDirectChildren(property);
+			var mainProperty = children.Count == 1 ? children[0] : property;
+
+			return EditorGUI.GetPropertyHeight(mainProperty);
+		}
+
+		protected virtual void DrawMainProperty(Rect rect, SerializedProperty property, GUIContent label)
+		{
+			EditorGUI.PropertyField(rect, property, label, true);
 		}
 	}
 }

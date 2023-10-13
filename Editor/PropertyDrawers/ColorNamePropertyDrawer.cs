@@ -7,35 +7,10 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes.Editor
 {
-	using UnityObject = UnityEngine.Object;
-
 	[CustomPropertyDrawer(typeof(ColorNameAttribute))]
 	public class ColorNamePropertyDrawer : PropertyDrawer
 	{
-		private readonly Dictionary<int, Texture2D> _swatches = new();
-
-		public ColorNamePropertyDrawer()
-		{
-			_swatches = new Dictionary<int, Texture2D>();
-		}
-
-		~ColorNamePropertyDrawer()
-		{
-			foreach (var texture in _swatches.Values)
-			{
-				if (texture == null)
-					continue;
-
-				if (Application.isPlaying)
-				{
-					UnityEngine.Object.Destroy(texture);
-				}
-				else
-				{
-					UnityEngine.Object.DestroyImmediate(texture);
-				}
-			}
-		}
+		private static readonly Dictionary<int, Texture2D> _swatches = new();
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -85,7 +60,7 @@ namespace Myna.Unity.Themes.Editor
 
 		private Texture2D GetSwatch(Color color)
 		{
-			if (_swatches.TryGetValue(color.GetHashCode(), out var swatch))
+			if (_swatches.TryGetValue(color.GetHashCode(), out var swatch) && swatch != null)
 			{
 				return swatch;
 			}

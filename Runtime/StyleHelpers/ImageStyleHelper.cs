@@ -8,21 +8,22 @@ namespace Myna.Unity.Themes
 {
 	public class ImageStyleHelper : StyleHelper<ImageStyle>
 	{
+		[System.Serializable]
+		public class OverrideProperties
+		{
+			public OverrideProperty<Sprite> SourceImage = new();
+			public OverrideProperty<Color> Color = new();
+			[OverrideAlpha] public OverrideProperty<float> Alpha = new();
+			public OverrideProperty<ImageType> ImageType = new();
+		}
+
 		[SerializeField]
 		private Image _image;
 
-		[Header("Overrides")]
 		[SerializeField]
-		private OverrideSpriteProperty _overrideSourceImage = new();
+		private OverrideProperties _overrides = new();
 
-		[SerializeField]
-		private OverrideColorProperty _overrideColor = new();
-
-		[SerializeField]
-		private OverrideAlphaProperty _overrideAlpha = new();
-
-		[SerializeField]
-		private bool _overrideImageType = new();
+		public Image Image => _image;
 
 		protected override void OnValidate()
 		{
@@ -43,32 +44,21 @@ namespace Myna.Unity.Themes
 			}
 
 			// Source Image
-			if (style.TryGetProperty(ImageStyle.PropertyNames.SourceImage,
-				out SpriteProperty spriteProperty))
-			{
-				var sprite = spriteProperty.GetValue(Theme) as Sprite;
-				_image.sprite = _overrideSourceImage.OverrideOrDefaultValue(sprite);
-			}
+			var sprite = style.GetPropertyValue(ImageStyle.PropertyNames.SourceImage, Theme, _image.sprite);
+			sprite = _overrides.SourceImage.OverrideOrDefaultValue(sprite);
+			_image.sprite = sprite;
 
 			// Color
-			var color = _image.color;
-			if (style.TryGetProperty(ImageStyle.PropertyNames.Color,
-				out ColorProperty colorProperty))
-			{
-				color = (Color)colorProperty.GetValue(Theme);
-			}
-
-			color = _overrideColor.OverrideOrDefaultValue(color);
-			color.a = _overrideAlpha.OverrideOrDefaultValue(color.a);
+			var color = style.GetPropertyValue(ImageStyle.PropertyNames.Color, Theme, _image.color);
+			color = _overrides.Color.OverrideOrDefaultValue(color);
+			color.a = _overrides.Alpha.OverrideOrDefaultValue(color.a);
 			_image.color = color;
 
 			// Image Type
-			if (!_overrideImageType && style.TryGetProperty(ImageStyle.PropertyNames.ImageType,
-				out ImageTypeProperty imageTypeProperty))
-			{
-				var imageType = imageTypeProperty.GetValue(Theme) as ImageType;
-				imageType.Apply(_image);
-			}
+			var imageType = ImageType.FromImage(_image);
+			imageType = style.GetPropertyValue(ImageStyle.PropertyNames.ImageType, Theme, imageType);
+			imageType = _overrides.ImageType.OverrideOrDefaultValue(imageType);
+			imageType.Apply(_image);
 		}
 	}
 }
