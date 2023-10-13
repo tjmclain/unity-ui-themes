@@ -9,7 +9,7 @@ public class ColorProperty : StyleProperty
 	[SerializeField, ColorSchemeReference]
 	private ColorScheme _referenceColorScheme;
 
-	[SerializeField, ColorName]
+	[SerializeField, ColorName(nameof(_referenceColorScheme))]
 	private string _colorName = string.Empty;
 
 	[SerializeField]
@@ -20,8 +20,13 @@ public class ColorProperty : StyleProperty
 
 	public override object GetValue(Theme theme)
 	{
-		return theme.TryGetColorByGuid(_colorName, out var color)
-			|| theme.TryGetColor(_colorName, out color)
+		if (string.IsNullOrEmpty(ColorName))
+		{
+			return FallbackColor;
+		}
+
+		return theme.TryGetColorByGuid(ColorName, out var color)
+			|| theme.TryGetColor(ColorName, out color)
 			? color : FallbackColor;
 	}
 }

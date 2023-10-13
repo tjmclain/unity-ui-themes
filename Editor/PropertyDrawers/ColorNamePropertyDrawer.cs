@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,67 +7,101 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes.Editor
 {
+	using UnityObject = UnityEngine.Object;
+
 	[CustomPropertyDrawer(typeof(ColorNameAttribute))]
 	public class ColorNamePropertyDrawer : PropertyDrawer
 	{
-		private static readonly Dictionary<int, Texture2D> _swatches = new();
+		private readonly Dictionary<int, Texture2D> _swatches = new();
+
+		public ColorNamePropertyDrawer()
+		{
+			_swatches = new Dictionary<int, Texture2D>();
+		}
+
+		~ColorNamePropertyDrawer()
+		{
+			foreach (var texture in _swatches.Values)
+			{
+				if (texture == null)
+					continue;
+
+				if (Application.isPlaying)
+				{
+					UnityEngine.Object.Destroy(texture);
+				}
+				else
+				{
+					UnityEngine.Object.DestroyImmediate(texture);
+				}
+			}
+		}
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			static bool TryGetColors(out ColorInfo[] colors)
+			var colorNameAttribute = attribute as ColorNameAttribute;
+			var colorScheme = GetColorScheme(property, colorNameAttribute.ColorSchemePropertyName);
+
+			if (colorScheme == null)
 			{
-				var theme = ProjectSettings.GetInstance().GetDefaultTheme();
-				var colorScheme = theme.DefaultColorScheme;
-				if (colorScheme == null)
-				{
-					colors = default;
-					return false;
-				}
-
-				colors = theme.DefaultColorScheme.Colors.ToArray();
-				return colors.Length > 0;
-			}
-
-			static Texture2D GetSwatch(Color color)
-			{
-				if (_swatches.TryGetValue(color.GetHashCode(), out var swatch))
-				{
-					return swatch;
-				}
-
-				swatch = new Texture2D(24, 12);
-				for (int x = 0; x < swatch.width; x++)
-				{
-					for (int y = 0; y < swatch.height; y++)
-					{
-						swatch.SetPixel(x, y, color);
-					}
-				}
-				swatch.Apply();
-
-				_swatches[color.GetHashCode()] = swatch;
-				return swatch;
-			}
-
-			if (!TryGetColors(out var colors))
-			{
+				Debug.LogError($"{nameof(colorScheme)} == null", property.serializedObject.targetObject);
 				EditorGUI.PropertyField(position, property, label);
 				return;
 			}
 
-			var options = colors.Select(x => new GUIContent()
+			var colors = colorScheme.Colors.ToArray();
+			var options = new List<GUIContent>() { new GUIContent("[none]") };
+			options.AddRange(colors.Select(x => new GUIContent()
 			{
 				text = $" {x.Name}",
 				image = GetSwatch(x.Color)
-			}).ToArray();
+			}));
 
 			string value = property.stringValue;
-			int index = System.Array.FindIndex(colors, x => x.Name == value || x.Guid == value);
-			index = System.Math.Max(index, 0);
+			int index = Array.FindIndex(colors, x => x.Name == value || x.Guid == value) + 1;
+			index = Math.Max(index, 0);
 
-			index = EditorGUI.Popup(position, label, index, options);
+			index = EditorGUI.Popup(position, label, index, options.ToArray());
 
-			property.stringValue = colors[index].Guid;
+			property.stringValue = index > 0 ? colors[index - 1].Guid : string.Empty;
+		}
+
+		private static ColorScheme GetColorScheme(SerializedProperty property, string colorSchemePropertyName)
+		{
+			var colorSchemeProperty = property.GetSiblingProperty(colorSchemePropertyName);
+			if (colorSchemeProperty == null)
+			{
+				return GetDefaultColorScheme();
+			}
+
+			var colorScheme = colorSchemeProperty.objectReferenceValue as ColorScheme;
+			return colorScheme != null ? colorScheme : GetDefaultColorScheme();
+		}
+
+		private static ColorScheme GetDefaultColorScheme()
+		{
+			return ProjectSettings.GetInstance().GetDefaultTheme().DefaultColorScheme;
+		}
+
+		private Texture2D GetSwatch(Color color)
+		{
+			if (_swatches.TryGetValue(color.GetHashCode(), out var swatch))
+			{
+				return swatch;
+			}
+
+			swatch = new Texture2D(24, 12);
+			for (int x = 0; x < swatch.width; x++)
+			{
+				for (int y = 0; y < swatch.height; y++)
+				{
+					swatch.SetPixel(x, y, color);
+				}
+			}
+			swatch.Apply();
+
+			_swatches[color.GetHashCode()] = swatch;
+			return swatch;
 		}
 	}
 }
