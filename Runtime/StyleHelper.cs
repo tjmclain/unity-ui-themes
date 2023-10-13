@@ -7,20 +7,38 @@ namespace Myna.Unity.Themes
 {
 	public abstract class StyleHelper : MonoBehaviour
 	{
-		[SerializeField]
+		public abstract Theme Theme { get; }
+		public abstract string ClassName { get; }
+		public abstract Type StyleType { get; }
+
+		public abstract void ApplyStyle();
+	}
+
+	public abstract class StyleHelper<TStyle> : StyleHelper where TStyle : Style
+	{
+		[SerializeField, ThemeReference]
 		private Theme _theme;
 
 		[SerializeField, StyleHelperClassName]
 		private string _className;
 
-		public Theme Theme => _theme;
-		public string ClassName => _className;
+		#region IStyleHelper
 
-		public abstract Type StyleType { get; }
+		public override Theme Theme => _theme;
+		public override string ClassName => _className;
+		public override Type StyleType => typeof(TStyle);
 
-		public abstract void ApplyStyle();
+		public override void ApplyStyle()
+		{
+			if (TryGetStyle(out TStyle style))
+			{
+				ApplyStyle(style);
+			}
+		}
 
-		protected bool TryGetStyle<T>(out T style) where T : Style
+		#endregion IStyleHelper
+
+		protected bool TryGetStyle(out TStyle style)
 		{
 			if (_theme == null)
 			{
@@ -29,7 +47,7 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			return _theme.TryGetStyle(_className, out style);
+			return _theme.TryGetStyle<TStyle>(_className, out style);
 		}
 
 		#region MonoBehaviour
@@ -45,19 +63,6 @@ namespace Myna.Unity.Themes
 		}
 
 		#endregion MonoBehaviour
-	}
-
-	public abstract class StyleHelper<TStyle> : StyleHelper where TStyle : Style
-	{
-		public override Type StyleType => typeof(TStyle);
-
-		public override sealed void ApplyStyle()
-		{
-			if (TryGetStyle(out TStyle style))
-			{
-				ApplyStyle(style);
-			}
-		}
 
 		protected abstract void ApplyStyle(TStyle style);
 	}

@@ -16,7 +16,7 @@ namespace Myna.Unity.Themes.Editor
 			var styleHelper = target as StyleHelper;
 			if (styleHelper == null)
 			{
-				Debug.LogWarning($"{nameof(styleHelper)} == null", target);
+				Debug.LogWarning($"{nameof(target)} in not {nameof(StyleHelper)}", target);
 				EditorGUI.PropertyField(position, property, label);
 				return;
 			}
@@ -29,7 +29,8 @@ namespace Myna.Unity.Themes.Editor
 				return;
 			}
 
-			var classNames = theme.GetStyleClassNames(styleHelper.StyleType).ToArray();
+			var styleType = styleHelper.StyleType;
+			var classNames = theme.GetStyleClassNames(styleType).ToArray();
 			if (classNames.Length < 1)
 			{
 				EditorGUI.PropertyField(position, property, label);
