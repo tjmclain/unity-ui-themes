@@ -14,8 +14,6 @@ public class ColorProperty : StyleProperty
 	[SerializeField]
 	private Color _fallbackColor = Color.white;
 
-	public static string DefaultName => nameof(Color);
-
 	public override Type ValueType => typeof(Color);
 	public string ColorName => _colorName;
 	public Color FallbackColor => _fallbackColor;

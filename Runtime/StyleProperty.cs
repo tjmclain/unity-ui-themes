@@ -5,7 +5,7 @@ namespace Myna.Unity.Themes
 {
 	public interface IStyleProperty
 	{
-		string Name { get; }
+		string Name { get; set; }
 
 		Type ValueType { get; }
 

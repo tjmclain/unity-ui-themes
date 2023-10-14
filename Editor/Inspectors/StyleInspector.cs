@@ -33,7 +33,7 @@ namespace Myna.Unity.Themes.Editor
 		{
 			if (SerializationUtility.ClearAllManagedReferencesWithMissingTypes(target))
 			{
-				Debug.Log($"SerializationUtility.ClearAllManagedReferencesWithMissingTypes: {target.name}", target);
+				Debug.Log($"{nameof(SerializationUtility.ClearAllManagedReferencesWithMissingTypes)}: {target.name}", target);
 				EditorUtility.SetDirty(target);
 			}
 
@@ -62,15 +62,11 @@ namespace Myna.Unity.Themes.Editor
 			var menu = new GenericMenu();
 			var style = target as Style;
 
-			var propertyTypes = AppDomain.CurrentDomain.GetAssemblies()
-				.SelectMany(x => x.GetTypes())
-				.Where(x => !x.IsAbstract)
-				.Where(x => typeof(IStyleProperty).IsAssignableFrom(x))
-				.OrderBy(x => x.Name);
+			var propertyNames = StylePropertyDefinitions.PropertyNames.OrderBy(x => x);
 
-			foreach (var type in propertyTypes)
+			foreach (var propertyName in propertyNames)
 			{
-				menu.AddItem(new GUIContent(type.Name), false, OnAddProperty, type);
+				menu.AddItem(new GUIContent(propertyName), false, OnAddProperty, propertyName);
 			}
 
 			menu.ShowAsContext();
@@ -78,8 +74,15 @@ namespace Myna.Unity.Themes.Editor
 
 		private void OnAddProperty(object userData)
 		{
-			var type = userData as Type;
-			var instance = Activator.CreateInstance(type) as IStyleProperty;
+			string propertyName = userData.ToString();
+			if (!StylePropertyDefinitions.TryGetPropertyType(propertyName, out var propertyType))
+			{
+				Debug.LogError($"No property definition for '{propertyName}'");
+				return;
+			}
+
+			var instance = Activator.CreateInstance(propertyType) as IStyleProperty;
+			instance.Name = propertyName;
 
 			var properties = _propertiesList.serializedProperty;
 			int index = properties.arraySize;
