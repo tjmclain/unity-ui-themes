@@ -10,19 +10,19 @@ namespace Myna.Unity.Themes.Editor
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var target = property.serializedObject.targetObject;
-			var styleHelper = target as StyleHelper;
-			if (styleHelper == null)
-			{
-				Debug.LogWarning($"{nameof(target)} in not {nameof(StyleHelper)}", target);
-				EditorGUI.PropertyField(position, property, label);
-				return;
-			}
+			var dropdownAttribute = attribute as ClassNameDropdownAttribute;
+			string themePropertyName = dropdownAttribute.ThemePropertyName;
+			var themeProperty = !string.IsNullOrEmpty(themePropertyName)
+				? property.GetSiblingProperty(themePropertyName) : null;
 
-			var theme = styleHelper.Theme;
+			// theme is either defined in a sibling property or the inspected target
+			var theme = themeProperty != null
+				? themeProperty.objectReferenceValue as Theme
+				: property.serializedObject.targetObject as Theme;
+
 			if (theme == null)
 			{
-				Debug.LogWarning($"{nameof(theme)} == null", target);
+				Debug.LogWarning($"{nameof(theme)} == null", property.serializedObject.targetObject);
 				EditorGUI.PropertyField(position, property, label);
 				return;
 			}
