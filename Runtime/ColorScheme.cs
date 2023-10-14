@@ -5,26 +5,29 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
-	[System.Serializable]
-	public class ColorInfo
-	{
-		[SerializeField]
-		private string _name = "Color";
-
-		[SerializeField]
-		private Color _color = Color.white;
-
-		[SerializeField, HideInInspector]
-		private string _guid = System.Guid.NewGuid().ToString();
-
-		public string Name => _name;
-		public Color Color => _color;
-		public string Guid => _guid;
-	}
-
 	[CreateAssetMenu(fileName = "ColorScheme", menuName = "UI Themes/Color Scheme")]
 	public class ColorScheme : ScriptableObject
 	{
+		[System.Serializable]
+		public class ColorInfo
+		{
+			[SerializeField]
+			private string _name = "Color";
+
+			[SerializeField]
+			private Color _color = Color.white;
+
+			[SerializeField, HideInInspector]
+			private string _guid = System.Guid.NewGuid().ToString();
+
+			public const string NamePropertyName = nameof(_name);
+			public const string ColorPropertyName = nameof(_color);
+
+			public string Name => _name;
+			public Color Color => _color;
+			public string Guid => _guid;
+		}
+
 		[SerializeField]
 		private List<ColorInfo> _colors = new();
 

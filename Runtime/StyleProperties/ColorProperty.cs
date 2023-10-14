@@ -8,7 +8,7 @@ public class ColorProperty : StyleProperty
 	[SerializeField, ColorSchemeReference]
 	private ColorScheme _referenceColorScheme;
 
-	[SerializeField, ColorName(nameof(_referenceColorScheme))]
+	[SerializeField, ColorNameDropdown(nameof(_referenceColorScheme), nameof(_fallbackColor))]
 	private string _colorName = string.Empty;
 
 	[SerializeField]

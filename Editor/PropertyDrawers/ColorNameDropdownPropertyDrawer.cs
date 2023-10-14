@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -7,25 +6,29 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes.Editor
 {
-	[CustomPropertyDrawer(typeof(ColorNameAttribute))]
-	public class ColorNamePropertyDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(ColorNameDropdownAttribute))]
+	public class ColorNameDropdownPropertyDrawer : PropertyDrawer
 	{
 		private static readonly Dictionary<int, Texture2D> _swatches = new();
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var colorNameAttribute = attribute as ColorNameAttribute;
-			var colorScheme = GetColorScheme(property, colorNameAttribute.ColorSchemePropertyName);
+			var dropdownAttribute = attribute as ColorNameDropdownAttribute;
+			var colorScheme = GetColorScheme(property, dropdownAttribute.ColorSchemePropertyName);
 
 			if (colorScheme == null)
 			{
-				Debug.LogError($"{nameof(colorScheme)} == null", property.serializedObject.targetObject);
+				Debug.LogWarning($"{nameof(colorScheme)} == null", property.serializedObject.targetObject);
 				EditorGUI.PropertyField(position, property, label);
 				return;
 			}
 
+			string defaultColorPropertyName = dropdownAttribute.DefaultColorPropertyName;
+			string defaultColorOption = GetDefaultColorOptionName(property, defaultColorPropertyName);
+
+			var options = new List<GUIContent>() { new GUIContent(defaultColorOption) };
+
 			var colors = colorScheme.Colors.ToArray();
-			var options = new List<GUIContent>() { new GUIContent("[none]") };
 			options.AddRange(colors.Select(x => new GUIContent()
 			{
 				text = $" {x.Name}",
@@ -58,7 +61,25 @@ namespace Myna.Unity.Themes.Editor
 			return ProjectSettings.GetInstance().GetDefaultColorScheme();
 		}
 
-		private Texture2D GetSwatch(Color color)
+		private static string GetDefaultColorOptionName(SerializedProperty property, string defaultColorPropertyName)
+		{
+			const string defaultName = "Default";
+
+			if (string.IsNullOrEmpty(defaultColorPropertyName))
+			{
+				return defaultName;
+			}
+
+			var defaultColorProperty = property.GetSiblingProperty(defaultColorPropertyName);
+			if (defaultColorProperty == null)
+			{
+				return defaultName;
+			}
+
+			return $"{defaultName} ({defaultColorProperty.displayName})";
+		}
+
+		private static Texture2D GetSwatch(Color color)
 		{
 			if (_swatches.TryGetValue(color.GetHashCode(), out var swatch) && swatch != null)
 			{

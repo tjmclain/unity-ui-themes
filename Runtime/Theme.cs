@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static PlasticGui.PlasticTableCell;
 
 namespace Myna.Unity.Themes
 {

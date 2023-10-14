@@ -17,6 +17,8 @@ namespace Myna.Unity.Themes
 		[SerializeField, HideInInspector]
 		protected string _name = "";
 
+		public const string NamePropertyName = nameof(_name);
+
 		public virtual string Name
 		{
 			get => _name;
@@ -41,30 +43,5 @@ namespace Myna.Unity.Themes
 		{
 			return _value;
 		}
-	}
-
-	[Serializable]
-	public class AlphaProperty : StyleProperty<float>
-	{
-	}
-
-	[Serializable]
-	public class FontAssetProperty : StyleProperty<TMPro.TMP_FontAsset>
-	{
-	}
-
-	[Serializable]
-	public class FontStylesProperty : StyleProperty<TMPro.FontStyles>
-	{
-	}
-
-	[Serializable]
-	public class ImageTypeProperty : StyleProperty<ImageType>
-	{
-	}
-
-	[Serializable]
-	public class SpriteProperty : StyleProperty<Sprite>
-	{
 	}
 }

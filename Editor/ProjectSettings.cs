@@ -97,7 +97,14 @@ namespace Myna.Unity.Themes.Editor
 				return _defaultTheme;
 			}
 
-			if (TryFindThemeAsset(out Theme theme))
+			var theme = AssetDatabase.LoadAssetAtPath<Theme>(_defaultThemePath);
+			if (theme != null)
+			{
+				DefaultTheme = theme;
+				return theme;
+			}
+
+			if (TryFindThemeAsset(out theme))
 			{
 				DefaultTheme = theme;
 				return theme;
@@ -127,6 +134,12 @@ namespace Myna.Unity.Themes.Editor
 			var theme = GetDefaultTheme();
 			var colorScheme = theme.DefaultColorScheme;
 
+			if (colorScheme != null)
+			{
+				return colorScheme;
+			}
+
+			colorScheme = AssetDatabase.LoadAssetAtPath<ColorScheme>(_defaultColorSchemePath);
 			if (colorScheme != null)
 			{
 				return colorScheme;

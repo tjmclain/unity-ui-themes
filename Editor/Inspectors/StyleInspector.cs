@@ -5,7 +5,6 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.Linq;
 using System;
-using System.Reflection;
 
 namespace Myna.Unity.Themes.Editor
 {
@@ -47,8 +46,23 @@ namespace Myna.Unity.Themes.Editor
 				drawHeaderCallback = DrawHeader,
 				drawElementCallback = DrawElement,
 				elementHeightCallback = GetElementHeight,
-				onAddDropdownCallback = AddDropdown
+				onAddDropdownCallback = AddDropdown,
+				onCanAddCallback = CanAddProperty,
 			};
+		}
+
+		private IEnumerable<string> GetPropertyNamesForAdd(SerializedProperty property)
+		{
+			var existingPropertyNames = new List<string>();
+			for (int i = 0; i < property.arraySize; i++)
+			{
+				var element = property.GetArrayElementAtIndex(i);
+				var name = element.FindPropertyRelative(StyleProperty.NamePropertyName);
+				existingPropertyNames.Add(name.stringValue);
+			}
+
+			return StylePropertyDefinitions.PropertyNames
+				.Where(x => !existingPropertyNames.Contains(x));
 		}
 
 		private void DrawHeader(Rect rect)
@@ -62,7 +76,7 @@ namespace Myna.Unity.Themes.Editor
 			var menu = new GenericMenu();
 			var style = target as Style;
 
-			var propertyNames = StylePropertyDefinitions.PropertyNames.OrderBy(x => x);
+			var propertyNames = GetPropertyNamesForAdd(list.serializedProperty).OrderBy(x => x);
 
 			foreach (var propertyName in propertyNames)
 			{
@@ -92,6 +106,8 @@ namespace Myna.Unity.Themes.Editor
 			property.managedReferenceValue = instance;
 
 			serializedObject.ApplyModifiedProperties();
+
+			_propertiesList.Select(index);
 		}
 
 		private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
@@ -111,7 +127,12 @@ namespace Myna.Unity.Themes.Editor
 			return EditorGUI.GetPropertyHeight(property);
 		}
 
-		private void ApplyStylesInScene()
+		private bool CanAddProperty(ReorderableList list)
+		{
+			return GetPropertyNamesForAdd(list.serializedProperty).Count() > 0;
+		}
+
+		private static void ApplyStylesInScene()
 		{
 			var stageHandle = StageUtility.GetCurrentStageHandle();
 			var styleHelpers = stageHandle.FindComponentsOfType<StyleHelper>();
