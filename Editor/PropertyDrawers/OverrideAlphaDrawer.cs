@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace Myna.Unity.Themes.Editor
 {
-	[CustomPropertyDrawer(typeof(OverrideAlphaAttribute))]
+	[CustomPropertyDrawer(typeof(OverrideAlphaProperty))]
 	public class OverrideAlphaDrawer : OverridePropertyDrawer
 	{
 		protected override void DrawMainProperty(Rect rect, SerializedProperty property, GUIContent label)

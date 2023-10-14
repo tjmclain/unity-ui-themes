@@ -13,7 +13,7 @@ namespace Myna.Unity.Themes
 		{
 			public OverrideProperty<Sprite> SourceImage = new();
 			public OverrideProperty<Color> Color = new();
-			[OverrideAlpha] public OverrideProperty<float> Alpha = new();
+			public OverrideAlphaProperty Alpha = new();
 			public OverrideProperty<ImageType> ImageType = new();
 		}
 
