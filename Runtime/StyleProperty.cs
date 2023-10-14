@@ -17,7 +17,11 @@ namespace Myna.Unity.Themes
 		[SerializeField, HideInInspector]
 		protected string _name = "";
 
-		public virtual string Name => _name;
+		public virtual string Name
+		{
+			get => _name;
+			set => _name = value;
+		}
 
 		public abstract Type ValueType { get; }
 
@@ -29,10 +33,7 @@ namespace Myna.Unity.Themes
 		[SerializeField]
 		private T _value;
 
-		public StyleProperty(string name)
-		{
-			_name = name;
-		}
+		public const string ValuePropertyName = nameof(_value);
 
 		public override Type ValueType => typeof(T);
 
@@ -45,50 +46,25 @@ namespace Myna.Unity.Themes
 	[Serializable]
 	public class AlphaProperty : StyleProperty<float>
 	{
-		public const string DefaultName = "Alpha";
-
-		public AlphaProperty() : base(DefaultName)
-		{
-		}
 	}
 
 	[Serializable]
 	public class FontAssetProperty : StyleProperty<TMPro.TMP_FontAsset>
 	{
-		public const string DefaultName = "FontAsset";
-
-		public FontAssetProperty() : base(DefaultName)
-		{
-		}
 	}
 
 	[Serializable]
 	public class FontStylesProperty : StyleProperty<TMPro.FontStyles>
 	{
-		public const string DefaultName = "FontStyles";
-
-		public FontStylesProperty() : base(DefaultName)
-		{
-		}
 	}
 
-	[System.Serializable]
+	[Serializable]
 	public class ImageTypeProperty : StyleProperty<ImageType>
 	{
-		public const string DefaultName = "ImageType";
-
-		public ImageTypeProperty() : base(DefaultName)
-		{
-		}
 	}
 
-	[System.Serializable]
+	[Serializable]
 	public class SpriteProperty : StyleProperty<Sprite>
 	{
-		public const string DefaultName = "Sprite";
-
-		public SpriteProperty() : base(DefaultName)
-		{
-		}
 	}
 }
