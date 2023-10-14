@@ -6,40 +6,62 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
-	public abstract class Style : ScriptableObject
+	[CreateAssetMenu(fileName = "Style", menuName = "UI Themes/Style")]
+	public class Style : ScriptableObject
 	{
 		[SerializeField, ClassName]
 		private string _className = ".";
 
 		[SerializeReference]
-		private List<StyleProperty> _properties = new();
-
-		public abstract Dictionary<string, System.Type> PropertyDefinitions { get; }
+		private List<IStyleProperty> _properties = new();
 
 		public string ClassName => _className;
-		public List<StyleProperty> Properties => _properties;
+		public List<IStyleProperty> Properties => _properties;
 
 		public static string ClassNameFieldName => nameof(_className);
 		public static string PropertiesFieldName => nameof(_properties);
 
-		public T GetPropertyValue<T>(string propertyName, Theme theme, T defaultValue)
+		public T GetPropertyValue<T>(Theme theme, T defaultValue)
 		{
-			if (!TryGetProperty(propertyName, out var property))
+			int index = _properties.FindIndex(x => x.ValueType == typeof(T));
+			if (index < 0)
 			{
+				//Debug.LogWarning($"{nameof(_properties)} does not contain property with {nameof(IStyleProperty.ValueType)} {typeof(T).Name}", this);
 				return defaultValue;
 			}
 
+			var property = _properties[index];
 			var value = property.GetValue(theme);
 			if (value is not T typedValue)
 			{
-				Debug.LogWarning($"value of {propertyName} is not {typeof(T).Name}", this);
+				Debug.LogWarning($"value of {property.Name} is not {typeof(T).Name}", this);
 				return defaultValue;
 			}
 
 			return typedValue;
 		}
 
-		public bool TryGetProperty(string propertyName, out StyleProperty property)
+		public T GetPropertyValue<T>(string propertyName, Theme theme, T defaultValue)
+		{
+			int index = _properties.FindIndex(x => x.Name == propertyName);
+			if (index < 0)
+			{
+				//Debug.LogWarning($"{nameof(_properties)} does not contain property with {nameof(IStyleProperty.Name)} '{propertyName}'", this);
+				return defaultValue;
+			}
+
+			var property = _properties[index];
+			var value = property.GetValue(theme);
+			if (value is not T typedValue)
+			{
+				Debug.LogWarning($"value of {property.Name} is not {typeof(T).Name}", this);
+				return defaultValue;
+			}
+
+			return typedValue;
+		}
+
+		public bool TryGetProperty(string propertyName, out IStyleProperty property)
 		{
 			if (string.IsNullOrEmpty(propertyName))
 			{
@@ -51,7 +73,7 @@ namespace Myna.Unity.Themes
 			int index = _properties.FindIndex(x => x != null && x.Name == propertyName);
 			if (index < 0)
 			{
-				Debug.LogWarning($"{nameof(_properties)} does not contain '{propertyName}'");
+				Debug.LogWarning($"{nameof(_properties)} does not contain '{propertyName}'", this);
 				property = default;
 				return false;
 			}
@@ -60,22 +82,22 @@ namespace Myna.Unity.Themes
 			return true;
 		}
 
-		public bool TryGetProperty<T>(string propertyName, out T property) where T : StyleProperty
+		public bool TryGetProperty<T>(string propertyName, out T property) where T : IStyleProperty
 		{
-			if (!TryGetProperty(propertyName, out StyleProperty untypedProperty))
+			if (!TryGetProperty(propertyName, out IStyleProperty value))
 			{
 				property = default;
 				return false;
 			}
 
-			if (untypedProperty is not T typedProperty)
+			if (value is not T typedValue)
 			{
 				Debug.LogWarning($"Property '{nameof(propertyName)}' is not {typeof(T).Name}", this);
 				property = default;
 				return false;
 			}
 
-			property = typedProperty;
+			property = typedValue;
 			return true;
 		}
 

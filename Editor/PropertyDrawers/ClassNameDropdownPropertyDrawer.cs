@@ -27,8 +27,7 @@ namespace Myna.Unity.Themes.Editor
 				return;
 			}
 
-			var styleType = styleHelper.StyleType;
-			var classNames = theme.GetStyleClassNames(styleType).ToArray();
+			var classNames = theme.GetStyleClassNames().ToArray();
 			if (classNames.Length < 1)
 			{
 				EditorGUI.PropertyField(position, property, label);

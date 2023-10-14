@@ -5,7 +5,7 @@ using UnityEditor;
 
 namespace Myna.Unity.Themes.Editor
 {
-	[CustomPropertyDrawer(typeof(StyleProperty), true)]
+	[CustomPropertyDrawer(typeof(IStyleProperty), true)]
 	public class StylePropertyDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

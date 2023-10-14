@@ -5,11 +5,11 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.Linq;
 using System;
+using System.Reflection;
 
 namespace Myna.Unity.Themes.Editor
 {
 	using ReorderableList = UnityEditorInternal.ReorderableList;
-	using UnityObject = UnityEngine.Object;
 
 	[CustomEditor(typeof(Style), true)]
 	public class StyleInspector : UnityEditor.Editor
@@ -61,13 +61,16 @@ namespace Myna.Unity.Themes.Editor
 		{
 			var menu = new GenericMenu();
 			var style = target as Style;
-			var options = style.PropertyDefinitions.Keys
-				.Select(x => new GUIContent(x))
-				.ToArray();
 
-			foreach (var option in options)
+			var propertyTypes = AppDomain.CurrentDomain.GetAssemblies()
+				.SelectMany(x => x.GetTypes())
+				.Where(x => !x.IsAbstract)
+				.Where(x => typeof(IStyleProperty).IsAssignableFrom(x))
+				.OrderBy(x => x.Name);
+
+			foreach (var type in propertyTypes)
 			{
-				menu.AddItem(option, false, OnAddProperty, option.text);
+				menu.AddItem(new GUIContent(type.Name), false, OnAddProperty, type);
 			}
 
 			menu.ShowAsContext();
@@ -75,11 +78,8 @@ namespace Myna.Unity.Themes.Editor
 
 		private void OnAddProperty(object userData)
 		{
-			string propertyName = userData.ToString();
-			var style = target as Style;
-			var type = style.PropertyDefinitions[propertyName];
-			var instance = Activator.CreateInstance(type) as StyleProperty;
-			instance.Name = propertyName;
+			var type = userData as Type;
+			var instance = Activator.CreateInstance(type) as IStyleProperty;
 
 			var properties = _propertiesList.serializedProperty;
 			int index = properties.arraySize;

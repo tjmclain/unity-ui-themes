@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using Myna.Unity.Themes;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class ColorProperty : StyleProperty
 {
 	[SerializeField, ColorSchemeReference]
@@ -15,6 +14,9 @@ public class ColorProperty : StyleProperty
 	[SerializeField]
 	private Color _fallbackColor = Color.white;
 
+	public static string DefaultName => nameof(Color);
+
+	public override Type ValueType => typeof(Color);
 	public string ColorName => _colorName;
 	public Color FallbackColor => _fallbackColor;
 

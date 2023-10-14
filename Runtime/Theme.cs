@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static PlasticGui.PlasticTableCell;
 
 namespace Myna.Unity.Themes
 {
@@ -30,10 +31,9 @@ namespace Myna.Unity.Themes
 			? _defaultColorScheme.ColorNames
 			: Enumerable.Empty<string>();
 
-		public IEnumerable<string> GetStyleClassNames(Type styleType)
+		public IEnumerable<string> GetStyleClassNames()
 		{
-			return _styles.Where(x => styleType.IsAssignableFrom(x.GetType()))
-				.Select(x => x.ClassName);
+			return _styles.Select(x => x.ClassName);
 		}
 
 		public void SetColorScheme(string colorSchemeName)
@@ -60,59 +60,18 @@ namespace Myna.Unity.Themes
 			_activeColorScheme = _defaultColorScheme;
 		}
 
-		public bool TryGetStyle(Type componentType, out Style style)
-			=> TryGetStyle(componentType, string.Empty, out style);
-
-		public bool TryGetStyle(Type styleType, string className, out Style style)
+		public bool TryGetStyle(string className, out Style style)
 		{
-			if (styleType == null)
-			{
-				Debug.LogError($"{nameof(styleType)} == null", this);
-				style = default;
-				return false;
-			}
-
-			var styles = Styles.Where(x => styleType.IsAssignableFrom(x.GetType())).ToArray();
-			if (styles.Length == 0)
-			{
-				Debug.LogError($"Could not any styles for component type '{styleType.Name}'", this);
-				style = default;
-				return false;
-			}
-
 			// try to the find the style with our exact class name
-			int index = Array.FindIndex(styles, x => x.ClassName == className);
-			if (index >= 0)
+			int index = Array.FindIndex(_styles, x => x.ClassName == className);
+			if (index < 0)
 			{
-				style = styles[index];
-				return true;
-			}
-
-			// otherwise, try to find the default style (no class name)
-			index = Array.FindIndex(styles, x => x.ClassName == string.Empty);
-			if (index >= 0)
-			{
-				style = styles[index];
-				return true;
-			}
-
-			Debug.LogError($"Could not find class '{className}' or default style for component type '{styleType.Name}'", this);
-			style = default;
-			return false;
-		}
-
-		public bool TryGetStyle<T>(out T style) where T : Style
-			=> TryGetStyle(string.Empty, out style);
-
-		public bool TryGetStyle<T>(string className, out T style) where T : Style
-		{
-			if (!TryGetStyle(typeof(T), className, out Style value))
-			{
+				Debug.LogError($"Could not find style for class '{className}'", this);
 				style = default;
 				return false;
 			}
 
-			style = value as T;
+			style = _styles[index];
 			return true;
 		}
 
