@@ -9,16 +9,11 @@ namespace Myna.Unity.Themes
 	[CreateAssetMenu(fileName = "Style", menuName = "UI Themes/Style")]
 	public class Style : ScriptableObject
 	{
-		[SerializeField, ClassName]
-		private string _className = ".";
-
 		[SerializeReference]
 		private List<IStyleProperty> _properties = new();
 
-		public string ClassName => _className;
 		public List<IStyleProperty> Properties => _properties;
 
-		public static string ClassNameFieldName => nameof(_className);
 		public static string PropertiesFieldName => nameof(_properties);
 
 		public T GetPropertyValue<T>(Theme theme, T defaultValue)
@@ -99,12 +94,6 @@ namespace Myna.Unity.Themes
 
 			property = typedValue;
 			return true;
-		}
-
-		public override string ToString()
-		{
-			base.ToString();
-			return $"{name} ({GetType().Name}{(string.IsNullOrEmpty(ClassName) ? string.Empty : $".{ClassName}")})";
 		}
 	}
 }

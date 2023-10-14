@@ -7,28 +7,13 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
-	[Serializable]
-	public class AlphaProperty : StyleProperty<float>
+	public static class StylePropertyNames
 	{
-	}
-
-	[Serializable]
-	public class FontAssetProperty : StyleProperty<TMPro.TMP_FontAsset>
-	{
-	}
-
-	[Serializable]
-	public class FontStylesProperty : StyleProperty<TMPro.FontStyles>
-	{
-	}
-
-	[Serializable]
-	public class ImageTypeProperty : StyleProperty<ImageType>
-	{
-	}
-
-	[Serializable]
-	public class SpriteProperty : StyleProperty<Sprite>
-	{
+		public const string Alpha = nameof(Alpha);
+		public const string Color = nameof(Color);
+		public const string FontAsset = nameof(FontAsset);
+		public const string FontStyles = nameof(FontStyles);
+		public const string ImageType = nameof(ImageType);
+		public const string Sprite = nameof(Sprite);
 	}
 }

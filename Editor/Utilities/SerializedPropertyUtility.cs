@@ -42,9 +42,4 @@ public static class SerializedPropertyUtility
 
 		return property.serializedObject.FindProperty(siblingPath);
 	}
-
-	public static bool TryGetMemberInfo(this SerializedProperty property, out MemberInfo memberInfo)
-	{
-		return ReflectionUtility.TryGetMemberRelative(property.serializedObject.targetObject, property.propertyPath, out memberInfo);
-	}
 }

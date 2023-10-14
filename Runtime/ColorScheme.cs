@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Myna.Unity.Themes
 	public class ColorScheme : ScriptableObject
 	{
 		[System.Serializable]
-		public class ColorInfo
+		public class ColorInfo : ISingleLineProperty
 		{
 			[SerializeField]
 			private string _name = "Color";
@@ -20,16 +21,13 @@ namespace Myna.Unity.Themes
 			[SerializeField, HideInInspector]
 			private string _guid = System.Guid.NewGuid().ToString();
 
-			public const string NamePropertyName = nameof(_name);
-			public const string ColorPropertyName = nameof(_color);
-
 			public string Name => _name;
 			public Color Color => _color;
 			public string Guid => _guid;
 		}
 
 		[SerializeField]
-		private List<ColorInfo> _colors = new();
+		private ColorInfo[] _colors = new ColorInfo[0];
 
 		public IEnumerable<ColorInfo> Colors => _colors;
 		public IEnumerable<string> ColorNames => _colors.Select(x => x.Name);
@@ -43,7 +41,7 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			int index = _colors.FindIndex(x => x.Name == colorName);
+			int index = Array.FindIndex(_colors, x => x.Name == colorName);
 			if (index < 0)
 			{
 				color = default;
@@ -63,7 +61,7 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			int index = _colors.FindIndex(x => x.Guid == guid);
+			int index = Array.FindIndex(_colors, x => x.Guid == guid);
 			if (index < 0)
 			{
 				color = default;

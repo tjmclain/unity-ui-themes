@@ -17,9 +17,6 @@ namespace Myna.Unity.Themes.Editor
 
 		public override void OnInspectorGUI()
 		{
-			var className = serializedObject.FindProperty(Style.ClassNameFieldName);
-			EditorGUILayout.PropertyField(className);
-
 			_propertiesList.DoLayoutList();
 
 			if (serializedObject.ApplyModifiedProperties())
@@ -58,6 +55,10 @@ namespace Myna.Unity.Themes.Editor
 			{
 				var element = property.GetArrayElementAtIndex(i);
 				var name = element.FindPropertyRelative(StyleProperty.NamePropertyName);
+				if (name == null)
+				{
+					continue;
+				}
 				existingPropertyNames.Add(name.stringValue);
 			}
 

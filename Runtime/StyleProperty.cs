@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
+	#region Style Property Base
+
 	public interface IStyleProperty
 	{
 		string Name { get; set; }
@@ -44,4 +46,64 @@ namespace Myna.Unity.Themes
 			return _value;
 		}
 	}
+
+	#endregion Style Property Base
+
+	#region Style Property Class Definitions
+
+	[Serializable, StyleProperty(StylePropertyNames.Alpha)]
+	public class AlphaProperty : StyleProperty<float>
+	{
+	}
+
+	[Serializable, StyleProperty(StylePropertyNames.Color)]
+	public class ColorProperty : StyleProperty
+	{
+		[SerializeField, ColorSchemeReference]
+		private ColorScheme _referenceColorScheme;
+
+		[SerializeField, ColorNameDropdown(nameof(_referenceColorScheme), nameof(_fallbackColor))]
+		private string _colorName = string.Empty;
+
+		[SerializeField]
+		private Color _fallbackColor = Color.white;
+
+		public override Type ValueType => typeof(Color);
+		public string ColorName => _colorName;
+		public Color FallbackColor => _fallbackColor;
+
+		public override object GetValue(Theme theme)
+		{
+			if (string.IsNullOrEmpty(ColorName))
+			{
+				return FallbackColor;
+			}
+
+			return theme.TryGetColorByGuid(ColorName, out var color)
+				|| theme.TryGetColor(ColorName, out color)
+				? color : FallbackColor;
+		}
+	}
+
+	[Serializable, StyleProperty(StylePropertyNames.FontAsset)]
+	public class FontAssetProperty : StyleProperty<TMPro.TMP_FontAsset>
+	{
+	}
+
+	[Serializable, StyleProperty(StylePropertyNames.FontStyles)]
+	public class FontStylesProperty : StyleProperty<TMPro.FontStyles>
+	{
+	}
+
+	[Serializable, StyleProperty(StylePropertyNames.ImageType)]
+	public class ImageTypeProperty : StyleProperty<ImageType>
+	{
+	}
+
+	[Serializable, StyleProperty(StylePropertyNames.Sprite)]
+	public class SpriteProperty : StyleProperty<Sprite>
+	{
+	}
+
+	#endregion Style Property Class Definitions
 }

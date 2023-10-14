@@ -29,4 +29,9 @@ namespace Myna.Unity.Themes
 			return Enabled ? Value : defaultValue;
 		}
 	}
+
+	[System.Serializable]
+	public class OverrideAlphaProperty : OverrideProperty<float>
+	{
+	}
 }

@@ -8,6 +8,23 @@ namespace Myna.Unity.Themes
 	[CreateAssetMenu(fileName = "Theme", menuName = "UI Themes/Theme")]
 	public class Theme : ScriptableObject
 	{
+		[Serializable]
+		public class StyleInfo : ISingleLineProperty
+		{
+			[SerializeField, ClassName]
+			private string _class = ".";
+
+			[SerializeField]
+			private Style _style;
+
+			[SerializeField, HideInInspector]
+			private string _guid = System.Guid.NewGuid().ToString();
+
+			public string Class => _class;
+			public Style Style => _style;
+			public string Guid => _guid;
+		}
+
 		[SerializeField]
 		private ColorScheme _defaultColorScheme = null;
 
@@ -15,7 +32,7 @@ namespace Myna.Unity.Themes
 		private ColorScheme[] _colorSchemes = new ColorScheme[0];
 
 		[SerializeField]
-		private Style[] _styles = new Style[0];
+		private StyleInfo[] _styles = new StyleInfo[0];
 
 		private ColorScheme _activeColorScheme = null;
 
@@ -29,7 +46,6 @@ namespace Myna.Unity.Themes
 
 		public ColorScheme ActiveColorScheme => _activeColorScheme != null ? _activeColorScheme : _defaultColorScheme;
 		public ColorScheme[] ColorSchemes => _colorSchemes;
-		public Style[] Styles => _styles;
 
 		public IEnumerable<string> ColorNames => _defaultColorScheme != null
 			? _defaultColorScheme.ColorNames
@@ -37,7 +53,7 @@ namespace Myna.Unity.Themes
 
 		public IEnumerable<string> GetStyleClassNames()
 		{
-			return _styles.Select(x => x.ClassName);
+			return _styles.Select(x => x.Class);
 		}
 
 		public void SetColorScheme(string colorSchemeName)
@@ -67,7 +83,7 @@ namespace Myna.Unity.Themes
 		public bool TryGetStyle(string className, out Style style)
 		{
 			// try to the find the style with our exact class name
-			int index = Array.FindIndex(_styles, x => x.ClassName == className);
+			int index = Array.FindIndex(_styles, x => x.Class == className);
 			if (index < 0)
 			{
 				Debug.LogError($"Could not find style for class '{className}'", this);
@@ -75,7 +91,8 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			style = _styles[index];
+			var info = _styles[index];
+			style = info.Style;
 			return true;
 		}
 
