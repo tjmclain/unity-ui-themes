@@ -19,7 +19,7 @@ namespace Myna.Unity.Themes
 		[SerializeField, ThemeReference]
 		private Theme _theme;
 
-		[SerializeField, StyleHelperClassName]
+		[SerializeField, ClassNameDropdown]
 		private string _className;
 
 		#region IStyleHelper

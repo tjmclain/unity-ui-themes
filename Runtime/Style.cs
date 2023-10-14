@@ -1,14 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
 	public abstract class Style : ScriptableObject
 	{
-		[SerializeField]
-		private string _className = "";
+		[SerializeField, ClassName]
+		private string _className = ".";
 
 		[SerializeReference]
 		private List<StyleProperty> _properties = new();

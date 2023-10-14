@@ -1,14 +1,12 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
 namespace Myna.Unity.Themes.Editor
 {
-	[CustomPropertyDrawer(typeof(StyleHelperClassNameAttribute))]
-	public class StyleHelperClassNamePropertyDrawer : PropertyDrawer
+	[CustomPropertyDrawer(typeof(ClassNameDropdownAttribute))]
+	public class ClassNameDropdownPropertyDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{

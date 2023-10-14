@@ -2,6 +2,6 @@ using System;
 using UnityEngine;
 
 [AttributeUsage(AttributeTargets.Field)]
-public class StyleHelperClassNameAttribute : PropertyAttribute
+public class ClassNameDropdownAttribute : PropertyAttribute
 {
 }
