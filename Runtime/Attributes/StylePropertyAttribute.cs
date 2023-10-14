@@ -1,18 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
-public class StylePropertyAttribute : MonoBehaviour
+namespace Myna.Unity.Themes
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+	[AttributeUsage(AttributeTargets.Class)]
+	public class StylePropertyAttribute : Attribute
+	{
+		public string[] Names { get; private set; } = Array.Empty<string>();
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+		public StylePropertyAttribute(params string[] names)
+		{
+			Names = names;
+		}
+	}
 }
