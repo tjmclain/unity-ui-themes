@@ -55,7 +55,7 @@ namespace Myna.Unity.Themes.Editor
 
 		private static ColorScheme GetDefaultColorScheme()
 		{
-			return ProjectSettings.GetInstance().GetDefaultTheme().DefaultColorScheme;
+			return ProjectSettings.GetInstance().GetDefaultColorScheme();
 		}
 
 		private Texture2D GetSwatch(Color color)

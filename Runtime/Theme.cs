@@ -22,7 +22,12 @@ namespace Myna.Unity.Themes
 
 		public static string StylesPropertyName => nameof(_styles);
 
-		public ColorScheme DefaultColorScheme => _defaultColorScheme;
+		public ColorScheme DefaultColorScheme
+		{
+			get => _defaultColorScheme;
+			set => _defaultColorScheme = value;
+		}
+
 		public ColorScheme ActiveColorScheme => _activeColorScheme != null ? _activeColorScheme : _defaultColorScheme;
 		public ColorScheme[] ColorSchemes => _colorSchemes;
 		public Style[] Styles => _styles;

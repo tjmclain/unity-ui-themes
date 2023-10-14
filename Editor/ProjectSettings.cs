@@ -10,6 +10,7 @@ namespace Myna.Unity.Themes.Editor
 
 		private static readonly string _path = $"{_assetsDirectory}/Editor/ThemesSettings.asset";
 		private static readonly string _defaultThemePath = $"{_assetsDirectory}/DefaultTheme.asset";
+		private static readonly string _defaultColorSchemePath = $"{_assetsDirectory}/DefaultColors.asset";
 
 		[SerializeField]
 		private Theme _defaultTheme;
@@ -119,6 +120,29 @@ namespace Myna.Unity.Themes.Editor
 
 			AssetDatabase.Refresh();
 			return theme;
+		}
+
+		public ColorScheme GetDefaultColorScheme()
+		{
+			var theme = GetDefaultTheme();
+			var colorScheme = theme.DefaultColorScheme;
+
+			if (colorScheme != null)
+			{
+				return colorScheme;
+			}
+
+			colorScheme = CreateInstance<ColorScheme>();
+
+			Debug.Log($"Creating default {nameof(ColorScheme)} at {_defaultColorSchemePath}");
+
+			AssetDatabase.CreateAsset(colorScheme, _defaultColorSchemePath);
+			AssetDatabase.SaveAssets();
+
+			theme.DefaultColorScheme = colorScheme;
+			AssetDatabase.Refresh();
+
+			return colorScheme;
 		}
 	}
 }
