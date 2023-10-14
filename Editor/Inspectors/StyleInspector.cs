@@ -19,6 +19,11 @@ namespace Myna.Unity.Themes.Editor
 		{
 			_propertiesList.DoLayoutList();
 
+			if (GUILayout.Button("Sort", GUILayout.Height(24f)))
+			{
+				_propertiesList.serializedProperty.SortArrayElements();
+			}
+
 			if (serializedObject.ApplyModifiedProperties())
 			{
 				ApplyStylesInScene();
@@ -33,6 +38,11 @@ namespace Myna.Unity.Themes.Editor
 				EditorUtility.SetDirty(target);
 			}
 
+			InitializePropertiesList();
+		}
+
+		private void InitializePropertiesList()
+		{
 			// `ReorderableList` References
 			// https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
 			// https://va.lent.in/unity-make-your-lists-functional-with-reorderablelist/

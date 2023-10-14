@@ -9,7 +9,7 @@ namespace Myna.Unity.Themes
 	[CreateAssetMenu(fileName = "ColorScheme", menuName = "UI Themes/Color Scheme")]
 	public class ColorScheme : ScriptableObject
 	{
-		[System.Serializable]
+		[Serializable]
 		public class ColorInfo : ISingleLineProperty
 		{
 			[SerializeField]
