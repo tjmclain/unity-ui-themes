@@ -81,6 +81,11 @@ public static class SerializedPropertyUtility
 		Debug.Log($"Sorted {property.name} in {passes} passes");
 	}
 
+	public static int CompareTo(this SerializedProperty property, SerializedProperty other)
+	{
+		return _comparer.Compare(property, other);
+	}
+
 	private class SerializedPropertyComparer : IComparer<SerializedProperty>
 	{
 		public int Compare(SerializedProperty x, SerializedProperty y)

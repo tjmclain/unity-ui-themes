@@ -10,8 +10,11 @@ namespace Myna.Unity.Themes
 	public class ColorScheme : ScriptableObject
 	{
 		[Serializable]
-		public class ColorInfo : ISingleLineProperty
+		public class ColorInfo
 		{
+			public const string NamePropertyName = nameof(_name);
+			public const string ColorPropertyName = nameof(_color);
+
 			[SerializeField]
 			private string _name = "Color";
 
@@ -26,7 +29,9 @@ namespace Myna.Unity.Themes
 			public string Guid => _guid;
 		}
 
-		[SerializeField]
+		public const string ColorsPropertyName = nameof(_colors);
+
+		[SerializeField, HideInInspector, SingleLineProperty(ColorInfo.NamePropertyName, ColorInfo.ColorPropertyName)]
 		private ColorInfo[] _colors = new ColorInfo[0];
 
 		public IEnumerable<ColorInfo> Colors => _colors;

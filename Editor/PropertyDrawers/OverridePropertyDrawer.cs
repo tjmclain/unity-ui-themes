@@ -14,7 +14,7 @@ namespace Myna.Unity.Themes.Editor
 			var enabledProperty = property.FindPropertyRelative(OverrideProperty.EnabledPropertyName);
 
 			var toggleSize = EditorStyles.toggle.CalcSize(GUIContent.none);
-			float buffer = EditorGUIUtility.singleLineHeight * 0.5f;
+			float buffer = EditorGUIUtility.standardVerticalSpacing * 2f;
 			var propertyPos = new Rect(position)
 			{
 				width = position.width - toggleSize.x - buffer
@@ -29,7 +29,7 @@ namespace Myna.Unity.Themes.Editor
 			DrawMainProperty(propertyPos, mainProperty, label);
 			EditorGUI.EndDisabledGroup();
 
-			enabledProperty.boolValue = EditorGUI.Toggle(enabledPos, enabledProperty.boolValue);
+			enabledProperty.boolValue = EditorGUI.Toggle(enabledPos, enabledProperty.boolValue, EditorStyles.toggle);
 		}
 
 		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)

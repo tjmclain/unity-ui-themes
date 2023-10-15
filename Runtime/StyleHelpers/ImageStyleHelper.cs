@@ -31,8 +31,6 @@ namespace Myna.Unity.Themes
 			{
 				TryGetComponent(out _image);
 			}
-
-			base.OnValidate();
 		}
 
 		protected override void ApplyStyle(Style style)
@@ -44,19 +42,22 @@ namespace Myna.Unity.Themes
 			}
 
 			// Source Image
-			var sprite = style.GetPropertyValue(Theme, _image.sprite);
+			var sprite = style.GetPropertyValue(SpriteProperty.DefaultName, Theme, _image.sprite);
 			sprite = _overrides.SourceImage.OverrideOrDefaultValue(sprite);
 			_image.sprite = sprite;
 
 			// Color
-			var color = style.GetPropertyValue(Theme, _image.color);
+			var color = style.GetPropertyValue(ColorProperty.DefaultName, Theme, _image.color);
 			color = _overrides.Color.OverrideOrDefaultValue(color);
+
+			// Alpha
+			color.a = style.GetPropertyValue(AlphaProperty.DefaultName, Theme, color.a);
 			color.a = _overrides.Alpha.OverrideOrDefaultValue(color.a);
 			_image.color = color;
 
 			// Image Type
 			var imageType = ImageType.FromImage(_image);
-			imageType = style.GetPropertyValue(Theme, imageType);
+			imageType = style.GetPropertyValue(ImageTypeProperty.DefaultName, Theme, imageType);
 			imageType = _overrides.ImageType.OverrideOrDefaultValue(imageType);
 			imageType.Apply(_image);
 		}

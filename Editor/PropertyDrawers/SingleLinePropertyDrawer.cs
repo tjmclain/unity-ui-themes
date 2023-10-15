@@ -5,19 +5,21 @@ using UnityEditor;
 
 namespace Myna.Unity.Themes.Editor
 {
-	[CustomPropertyDrawer(typeof(ISingleLineProperty), true)]
+	[CustomPropertyDrawer(typeof(SingleLinePropertyAttribute), true)]
 	public class SingleLinePropertyDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var properties = property.GetDirectChildren();
-			if (properties.Count < 2)
-			{
-				return;
-			}
+			var attribute = this.attribute as SingleLinePropertyAttribute;
 
-			var labelProperty = properties[0];
-			var valueProperty = properties[1];
+			//var properties = property.GetDirectChildren();
+			//if (properties.Count < 2)
+			//{
+			//	return;
+			//}
+
+			var labelProperty = property.FindPropertyRelative(attribute.LabelPropertyName); //properties[0];
+			var valueProperty = property.FindPropertyRelative(attribute.ValuePropertyName); //properties[1];
 
 			var labelRect = new Rect(position)
 			{

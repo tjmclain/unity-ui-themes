@@ -11,7 +11,7 @@ namespace Myna.Unity.Themes
 		private Theme _theme;
 
 		[SerializeField, ClassNameDropdown(nameof(_theme))]
-		private string _className;
+		private string _className = Theme.DefaultClassName;
 
 		#region IStyleHelper
 
@@ -49,7 +49,6 @@ namespace Myna.Unity.Themes
 
 		protected virtual void OnValidate()
 		{
-			ApplyStyle();
 		}
 
 		#endregion MonoBehaviour

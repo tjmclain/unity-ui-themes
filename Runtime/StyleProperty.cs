@@ -3,13 +3,11 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
-	#region Style Property Base
+	#region StyleProperty Base
 
 	public interface IStyleProperty
 	{
 		string Name { get; set; }
-
-		Type ValueType { get; }
 
 		object GetValue(Theme theme);
 	}
@@ -27,8 +25,6 @@ namespace Myna.Unity.Themes
 			set => _name = value;
 		}
 
-		public abstract Type ValueType { get; }
-
 		public abstract object GetValue(Theme theme);
 	}
 
@@ -39,26 +35,27 @@ namespace Myna.Unity.Themes
 
 		public const string ValuePropertyName = nameof(_value);
 
-		public override Type ValueType => typeof(T);
-
 		public override object GetValue(Theme theme)
 		{
 			return _value;
 		}
 	}
 
-	#endregion Style Property Base
+	#endregion StyleProperty Base
 
-	#region Style Property Class Definitions
+	#region StyleProperty Concrete Class Definitions
 
-	[Serializable, StyleProperty(StylePropertyNames.Alpha)]
+	[Serializable, StyleProperty(DefaultName)]
 	public class AlphaProperty : StyleProperty<float>
 	{
+		public const string DefaultName = "Alpha";
 	}
 
-	[Serializable, StyleProperty(StylePropertyNames.Color)]
+	[Serializable, StyleProperty(DefaultName)]
 	public class ColorProperty : StyleProperty
 	{
+		public const string DefaultName = "Color";
+
 		[SerializeField, ColorSchemeReference]
 		private ColorScheme _referenceColorScheme;
 
@@ -68,7 +65,6 @@ namespace Myna.Unity.Themes
 		[SerializeField]
 		private Color _fallbackColor = Color.white;
 
-		public override Type ValueType => typeof(Color);
 		public string ColorName => _colorName;
 		public Color FallbackColor => _fallbackColor;
 
@@ -85,25 +81,29 @@ namespace Myna.Unity.Themes
 		}
 	}
 
-	[Serializable, StyleProperty(StylePropertyNames.FontAsset)]
+	[Serializable, StyleProperty(DefaultName)]
 	public class FontAssetProperty : StyleProperty<TMPro.TMP_FontAsset>
 	{
+		public const string DefaultName = "FontAsset";
 	}
 
-	[Serializable, StyleProperty(StylePropertyNames.FontStyles)]
+	[Serializable, StyleProperty(DefaultName)]
 	public class FontStylesProperty : StyleProperty<TMPro.FontStyles>
 	{
+		public const string DefaultName = "FontStyles";
 	}
 
-	[Serializable, StyleProperty(StylePropertyNames.ImageType)]
+	[Serializable, StyleProperty(DefaultName)]
 	public class ImageTypeProperty : StyleProperty<ImageType>
 	{
+		public const string DefaultName = "ImageType";
 	}
 
-	[Serializable, StyleProperty(StylePropertyNames.Sprite)]
+	[Serializable, StyleProperty(DefaultName)]
 	public class SpriteProperty : StyleProperty<Sprite>
 	{
+		public const string DefaultName = "Sprite";
 	}
 
-	#endregion Style Property Class Definitions
+	#endregion StyleProperty Concrete Class Definitions
 }

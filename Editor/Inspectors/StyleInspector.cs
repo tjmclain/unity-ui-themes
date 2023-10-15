@@ -14,15 +14,13 @@ namespace Myna.Unity.Themes.Editor
 	public class StyleInspector : UnityEditor.Editor
 	{
 		private ReorderableList _propertiesList = null;
+		private ArrayPropertySortButton _sortButton = null;
 
 		public override void OnInspectorGUI()
 		{
 			_propertiesList.DoLayoutList();
 
-			if (GUILayout.Button("Sort", GUILayout.Height(24f)))
-			{
-				_propertiesList.serializedProperty.SortArrayElements();
-			}
+			_sortButton.DrawLayout();
 
 			if (serializedObject.ApplyModifiedProperties())
 			{
@@ -30,7 +28,7 @@ namespace Myna.Unity.Themes.Editor
 			}
 		}
 
-		private void OnEnable()
+		protected virtual void OnEnable()
 		{
 			if (SerializationUtility.ClearAllManagedReferencesWithMissingTypes(target))
 			{
@@ -38,11 +36,6 @@ namespace Myna.Unity.Themes.Editor
 				EditorUtility.SetDirty(target);
 			}
 
-			InitializePropertiesList();
-		}
-
-		private void InitializePropertiesList()
-		{
 			// `ReorderableList` References
 			// https://blog.terresquall.com/2020/03/creating-reorderable-lists-in-the-unity-inspector/
 			// https://va.lent.in/unity-make-your-lists-functional-with-reorderablelist/
@@ -56,6 +49,8 @@ namespace Myna.Unity.Themes.Editor
 				onAddDropdownCallback = AddDropdown,
 				onCanAddCallback = CanAddProperty,
 			};
+
+			_sortButton = new ArrayPropertySortButton(properties);
 		}
 
 		private IEnumerable<string> GetPropertyNamesForAdd(SerializedProperty property)

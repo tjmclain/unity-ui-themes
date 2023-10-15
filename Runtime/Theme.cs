@@ -9,10 +9,13 @@ namespace Myna.Unity.Themes
 	public class Theme : ScriptableObject
 	{
 		[Serializable]
-		public class StyleInfo : ISingleLineProperty
+		public class StyleInfo
 		{
+			public const string ClassPropertyName = nameof(_class);
+			public const string StylePropertyName = nameof(_style);
+
 			[SerializeField, ClassName]
-			private string _class = ".";
+			private string _class = Theme.DefaultClassName;
 
 			[SerializeField]
 			private Style _style;
@@ -25,13 +28,15 @@ namespace Myna.Unity.Themes
 			public string Guid => _guid;
 		}
 
+		public const string DefaultClassName = ".";
+
 		[SerializeField]
 		private ColorScheme _defaultColorScheme = null;
 
 		[SerializeField]
 		private ColorScheme[] _colorSchemes = new ColorScheme[0];
 
-		[SerializeField]
+		[SerializeField, HideInInspector, SingleLineProperty(StyleInfo.ClassPropertyName, StyleInfo.StylePropertyName)]
 		private StyleInfo[] _styles = new StyleInfo[0];
 
 		private ColorScheme _activeColorScheme = null;
