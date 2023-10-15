@@ -52,10 +52,14 @@ namespace Myna.Unity.Themes
 		public const string DefaultName = "Alpha";
 	}
 
-	[Serializable, StyleProperty(AutoSize)]
+	[Serializable, StyleProperty(Names.AutoSize, Names.RaycastTarget)]
 	public class BoolProperty : StyleProperty<bool>
 	{
-		public const string AutoSize = "AutoSize";
+		public static class Names
+		{
+			public const string AutoSize = "AutoSize";
+			public const string RaycastTarget = "RaycastTarget";
+		}
 	}
 
 	[Serializable, StyleProperty(DefaultName)]
@@ -88,12 +92,15 @@ namespace Myna.Unity.Themes
 		}
 	}
 
-	[Serializable, StyleProperty(FontSize, FontSizeMin, FontSizeMax)]
+	[Serializable, StyleProperty(Names.FontSize, Names.FontSizeMin, Names.FontSizeMax)]
 	public class FloatProperty : StyleProperty<float>
 	{
-		public const string FontSize = "FontSize";
-		public const string FontSizeMin = "FontSizeMin";
-		public const string FontSizeMax = "FontSizeMax";
+		public static class Names
+		{
+			public const string FontSize = "FontSize";
+			public const string FontSizeMin = "FontSizeMin";
+			public const string FontSizeMax = "FontSizeMax";
+		}
 	}
 
 	[Serializable, StyleProperty(DefaultName)]

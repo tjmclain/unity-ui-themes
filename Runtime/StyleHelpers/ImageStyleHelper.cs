@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,13 +6,14 @@ namespace Myna.Unity.Themes
 {
 	public class ImageStyleHelper : StyleHelper
 	{
-		[System.Serializable]
+		[Serializable]
 		public class OverrideProperties
 		{
-			public OverrideProperty<Sprite> Sprite = new();
-			public OverrideProperty<Color> Color = new();
-			public OverrideAlphaProperty Alpha = new();
-			public OverrideProperty<ImageType> ImageType = new();
+			public OverrideProperty<Sprite> Sprite = new(SpriteProperty.DefaultName);
+			public OverrideProperty<Color> Color = new(ColorProperty.DefaultName);
+			public OverrideAlphaProperty Alpha = new(AlphaProperty.DefaultName);
+			public OverrideProperty<ImageType> ImageType = new(ImageTypeProperty.DefaultName);
+			public OverrideProperty<bool> RaycastTarget = new(BoolProperty.Names.RaycastTarget);
 		}
 
 		[SerializeField]
@@ -42,24 +41,20 @@ namespace Myna.Unity.Themes
 			}
 
 			// Source Image
-			var sprite = style.GetPropertyValue(SpriteProperty.DefaultName, Theme, _image.sprite);
-			sprite = _overrides.Sprite.OverrideOrDefaultValue(sprite);
-			_image.sprite = sprite;
+			_image.sprite = _overrides.Sprite.GetValueOrOverride(style, Theme, _image.sprite);
 
 			// Color
-			var color = style.GetPropertyValue(ColorProperty.DefaultName, Theme, _image.color);
-			color = _overrides.Color.OverrideOrDefaultValue(color);
-
-			// Alpha
-			color.a = style.GetPropertyValue(AlphaProperty.DefaultName, Theme, color.a);
-			color.a = _overrides.Alpha.OverrideOrDefaultValue(color.a);
+			var color = _overrides.Color.GetValueOrOverride(style, Theme, _image.color);
+			color.a = _overrides.Alpha.GetValueOrOverride(style, Theme, color.a);
 			_image.color = color;
 
 			// Image Type
 			var imageType = ImageType.FromImage(_image);
-			imageType = style.GetPropertyValue(ImageTypeProperty.DefaultName, Theme, imageType);
-			imageType = _overrides.ImageType.OverrideOrDefaultValue(imageType);
+			imageType = _overrides.ImageType.GetValueOrOverride(style, Theme, imageType);
 			imageType.Apply(_image);
+
+			// RaycastTarget
+			_image.raycastTarget = _overrides.RaycastTarget.GetValueOrOverride(style, Theme, _image.raycastTarget);
 		}
 	}
 }
