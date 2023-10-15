@@ -10,14 +10,14 @@ namespace Myna.Unity.Themes
 	[CreateAssetMenu(fileName = "Style", menuName = "UI Themes/Style")]
 	public class Style : ScriptableObject
 	{
+		public const string PropertiesFieldName = nameof(_properties);
+
 		[SerializeReference]
 		private List<IStyleProperty> _properties = new();
 
 		public List<IStyleProperty> Properties => _properties;
 
-		public static string PropertiesFieldName => nameof(_properties);
-
-		public T GetPropertyValue<T>(string propertyName, Theme theme, T defaultValue)
+		public virtual T GetPropertyValue<T>(string propertyName, Theme theme, T defaultValue)
 		{
 			if (!TryGetProperty(propertyName, out var property))
 			{
@@ -35,7 +35,7 @@ namespace Myna.Unity.Themes
 			return typedValue;
 		}
 
-		public bool TryGetProperty(string propertyName, out IStyleProperty property)
+		public virtual bool TryGetProperty(string propertyName, out IStyleProperty property)
 		{
 			if (string.IsNullOrEmpty(propertyName))
 			{

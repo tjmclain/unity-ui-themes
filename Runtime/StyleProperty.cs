@@ -11,6 +11,8 @@ namespace Myna.Unity.Themes
 		string Name { get; set; }
 
 		object GetValue(Theme theme);
+
+		IStyleProperty Clone();
 	}
 
 	public abstract class StyleProperty : IStyleProperty
@@ -27,6 +29,11 @@ namespace Myna.Unity.Themes
 		}
 
 		public abstract object GetValue(Theme theme);
+
+		public IStyleProperty Clone()
+		{
+			return MemberwiseClone() as IStyleProperty;
+		}
 	}
 
 	public abstract class StyleProperty<T> : StyleProperty
