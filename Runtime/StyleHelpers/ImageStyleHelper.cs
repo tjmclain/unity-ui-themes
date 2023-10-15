@@ -11,7 +11,7 @@ namespace Myna.Unity.Themes
 		[System.Serializable]
 		public class OverrideProperties
 		{
-			public OverrideProperty<Sprite> SourceImage = new();
+			public OverrideProperty<Sprite> Sprite = new();
 			public OverrideProperty<Color> Color = new();
 			public OverrideAlphaProperty Alpha = new();
 			public OverrideProperty<ImageType> ImageType = new();
@@ -43,7 +43,7 @@ namespace Myna.Unity.Themes
 
 			// Source Image
 			var sprite = style.GetPropertyValue(SpriteProperty.DefaultName, Theme, _image.sprite);
-			sprite = _overrides.SourceImage.OverrideOrDefaultValue(sprite);
+			sprite = _overrides.Sprite.OverrideOrDefaultValue(sprite);
 			_image.sprite = sprite;
 
 			// Color

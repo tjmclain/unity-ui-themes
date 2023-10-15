@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Myna.Unity.Themes
@@ -51,6 +52,12 @@ namespace Myna.Unity.Themes
 		public const string DefaultName = "Alpha";
 	}
 
+	[Serializable, StyleProperty(AutoSize)]
+	public class BoolProperty : StyleProperty<bool>
+	{
+		public const string AutoSize = "AutoSize";
+	}
+
 	[Serializable, StyleProperty(DefaultName)]
 	public class ColorProperty : StyleProperty
 	{
@@ -81,6 +88,14 @@ namespace Myna.Unity.Themes
 		}
 	}
 
+	[Serializable, StyleProperty(FontSize, FontSizeMin, FontSizeMax)]
+	public class FloatProperty : StyleProperty<float>
+	{
+		public const string FontSize = "FontSize";
+		public const string FontSizeMin = "FontSizeMin";
+		public const string FontSizeMax = "FontSizeMax";
+	}
+
 	[Serializable, StyleProperty(DefaultName)]
 	public class FontAssetProperty : StyleProperty<TMPro.TMP_FontAsset>
 	{
@@ -88,9 +103,9 @@ namespace Myna.Unity.Themes
 	}
 
 	[Serializable, StyleProperty(DefaultName)]
-	public class FontStylesProperty : StyleProperty<TMPro.FontStyles>
+	public class FontStyleProperty : StyleProperty<TMPro.FontStyles>
 	{
-		public const string DefaultName = "FontStyles";
+		public const string DefaultName = "FontStyle";
 	}
 
 	[Serializable, StyleProperty(DefaultName)]
