@@ -13,14 +13,14 @@ namespace Myna.Unity.Themes.Editor
 	[CustomEditor(typeof(Style), true)]
 	public class StyleInspector : UnityEditor.Editor
 	{
+		private readonly ArrayPropertySortButton _sortButton = new();
 		private ReorderableList _propertiesList = null;
-		private ArrayPropertySortButton _sortButton = null;
 
 		public override void OnInspectorGUI()
 		{
 			_propertiesList.DoLayoutList();
 
-			_sortButton.DrawLayout();
+			_sortButton.DrawLayout(_propertiesList.serializedProperty);
 
 			if (serializedObject.ApplyModifiedProperties())
 			{
@@ -49,8 +49,6 @@ namespace Myna.Unity.Themes.Editor
 				onAddDropdownCallback = AddDropdown,
 				onCanAddCallback = CanAddProperty,
 			};
-
-			_sortButton = new ArrayPropertySortButton(properties);
 		}
 
 		private IEnumerable<string> GetPropertyNamesForAdd(SerializedProperty property)

@@ -8,24 +8,23 @@ namespace Myna.Unity.Themes.Editor
 	[CustomEditor(typeof(ColorScheme), true)]
 	public class ColorSchemeInspector : UnityEditor.Editor
 	{
-		private ArrayPropertySortButton _sortButton;
+		private readonly ArrayPropertySortButton _sortButton = new();
 
 		public override void OnInspectorGUI()
 		{
 			base.OnInspectorGUI();
 
 			var colors = serializedObject.FindProperty(ColorScheme.ColorsPropertyName);
-			EditorGUILayout.PropertyField(colors, true);
+			EditorGUILayout.PropertyField(colors);
 
-			_sortButton.DrawLayout();
+			if (colors.isExpanded)
+			{
+				_sortButton.DrawLayout(colors);
+			}
+
 
 			serializedObject.ApplyModifiedProperties();
 		}
 
-		protected virtual void OnEnable()
-		{
-			var colors = serializedObject.FindProperty(ColorScheme.ColorsPropertyName);
-			_sortButton = new ArrayPropertySortButton(colors);
-		}
 	}
 }

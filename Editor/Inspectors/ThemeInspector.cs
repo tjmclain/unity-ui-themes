@@ -8,24 +8,23 @@ namespace Myna.Unity.Themes.Editor
 	[CustomEditor(typeof(Theme))]
 	public class ThemeInspector : UnityEditor.Editor
 	{
-		private ArrayPropertySortButton _sortButton;
+		private readonly ArrayPropertySortButton _sortButton = new();
 
 		public override void OnInspectorGUI()
 		{
 			base.OnInspectorGUI();
 
 			var styles = serializedObject.FindProperty(Theme.StylesPropertyName);
-			EditorGUILayout.PropertyField(styles, true);
+			EditorGUILayout.PropertyField(styles);
 
-			_sortButton.DrawLayout();
+			if (styles.isExpanded)
+			{ 
+				_sortButton.DrawLayout(styles);
+			}
+
 
 			serializedObject.ApplyModifiedProperties();
 		}
 
-		protected virtual void OnEnable()
-		{
-			var styles = serializedObject.FindProperty(Theme.StylesPropertyName);
-			_sortButton = new ArrayPropertySortButton(styles);
-		}
 	}
 }
