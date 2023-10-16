@@ -11,12 +11,12 @@ namespace Myna.Unity.Themes
 		private Theme _theme;
 
 		[SerializeField, ClassNameDropdown(nameof(_theme))]
-		private string _className = Theme.DefaultClassName;
+		private SerializedClassName _className = new(Theme.DefaultClassName);
 
 		#region IStyleHelper
 
 		public Theme Theme => _theme;
-		public string ClassName => _className;
+		public string ClassName => _className.Name;
 
 		public void ApplyStyle()
 		{
@@ -37,7 +37,7 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			return _theme.TryGetStyle(_className, out style);
+			return _className.TryGetStyle(_theme, out style);
 		}
 
 		#region MonoBehaviour

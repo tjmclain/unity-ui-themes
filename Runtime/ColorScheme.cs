@@ -35,7 +35,11 @@ namespace Myna.Unity.Themes
 		private ColorInfo[] _colors = new ColorInfo[0];
 
 		public IEnumerable<ColorInfo> Colors => _colors;
-		public IEnumerable<string> ColorNames => _colors.Select(x => x.Name);
+
+		public IEnumerable<string> GetColorNames()
+		{
+			return _colors.Select(x => x.Name);
+		}
 
 		public bool TryGetColor(string colorName, out Color color)
 		{

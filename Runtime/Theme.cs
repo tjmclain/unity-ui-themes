@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEditor;
 using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
 	[CreateAssetMenu(fileName = "Theme", menuName = "UI Themes/Theme")]
-	public class Theme : ScriptableObject
+	public class Theme : ScriptableObject, ISerializationCallbackReceiver
 	{
-		public const string StylesPropertyName = nameof(_styles);
-
 		public const string DefaultClassName = ".";
+		public const string StylesPropertyName = nameof(_styles);
 
 		private readonly Dictionary<string, ThemeStyle> _themeStyles = new();
 
@@ -37,15 +37,18 @@ namespace Myna.Unity.Themes
 
 		public ColorScheme[] ColorSchemes => _colorSchemes;
 
-		public IEnumerable<string> ColorNames => _defaultColorScheme != null
-			? _defaultColorScheme.ColorNames
-			: Enumerable.Empty<string>();
-
 		public Dictionary<string, ThemeStyle> ThemeStyles => _themeStyles;
 
 		public IEnumerable<string> GetStyleClassNames()
 		{
 			return _styles.Select(x => x.Class);
+		}
+
+		public IEnumerable<string> GetColorNames()
+		{
+			return _defaultColorScheme != null
+				? _defaultColorScheme.GetColorNames()
+				: Enumerable.Empty<string>();
 		}
 
 		public void SetColorScheme(string colorSchemeName)
@@ -84,13 +87,58 @@ namespace Myna.Unity.Themes
 			int index = Array.FindIndex(_styles, x => x.Class == className);
 			if (index < 0)
 			{
-				Debug.LogError($"Could not find style for class '{className}'", this);
+				Debug.LogError($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
 				style = default;
 				return false;
 			}
 
 			var info = _styles[index];
 			style = info.Style;
+			return true;
+		}
+
+		public bool TryGetStyleByGuid(string guid, out Style style)
+		{
+			int index = Array.FindIndex(_styles, x => x.Guid == guid);
+			if (index < 0)
+			{
+				Debug.LogError($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
+				style = default;
+				return false;
+			}
+
+			var info = _styles[index];
+			style = TryGetThemeStyle(info.Class, out var themeStyle) ? themeStyle : info.Style;
+			return true;
+		}
+
+		public bool TryGetClassName(string guid, out string className)
+		{
+			int index = Array.FindIndex(_styles, x => x.Guid == guid);
+			if (index < 0)
+			{
+				Debug.LogError($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
+				className = string.Empty;
+				return false;
+			}
+
+			var info = _styles[index];
+			className = info.Class;
+			return true;
+		}
+
+		public bool TryGetGuid(string className, out string guid)
+		{
+			int index = Array.FindIndex(_styles, x => x.Class == className);
+			if (index < 0)
+			{
+				Debug.LogError($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
+				guid = string.Empty;
+				return false;
+			}
+
+			var info = _styles[index];
+			guid = info.Guid;
 			return true;
 		}
 
@@ -120,7 +168,7 @@ namespace Myna.Unity.Themes
 			return colorScheme.TryGetColorByGuid(guid, out color);
 		}
 
-		private bool TryGetThemeStyle(string className, out ThemeStyle themeStyle)
+		protected virtual bool TryGetThemeStyle(string className, out ThemeStyle themeStyle)
 		{
 			if (string.IsNullOrEmpty(className))
 			{
@@ -129,9 +177,7 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-#if UNITY_EDITOR
 			if (Application.isPlaying)
-#endif
 			{
 				if (_themeStyles.TryGetValue(className, out themeStyle))
 				{
@@ -139,7 +185,13 @@ namespace Myna.Unity.Themes
 				}
 			}
 
-			themeStyle = CreateInstance<ThemeStyle>();
+			themeStyle = CreateThemeStyle(className);
+			return true;
+		}
+
+		protected virtual ThemeStyle CreateThemeStyle(string className)
+		{
+			var themeStyle = CreateInstance<ThemeStyle>();
 			themeStyle.ClassName = className;
 
 			const char dot = '.';
@@ -181,7 +233,19 @@ namespace Myna.Unity.Themes
 			}
 
 			_themeStyles[className] = themeStyle;
-			return true;
+			return themeStyle;
+		}
+
+		public void OnBeforeSerialize()
+		{
+		}
+
+		public void OnAfterDeserialize()
+		{
+			foreach (var style in _styles)
+			{
+				style.InitGuid();
+			}
 		}
 
 		[Serializable]
@@ -191,7 +255,7 @@ namespace Myna.Unity.Themes
 			public const string StylePropertyName = nameof(_style);
 
 			[SerializeField, ClassName]
-			private string _class = Theme.DefaultClassName;
+			private string _class = DefaultClassName;
 
 			[SerializeField]
 			private Style _style;
@@ -202,6 +266,14 @@ namespace Myna.Unity.Themes
 			public string Class => _class;
 			public Style Style => _style;
 			public string Guid => _guid;
+
+			public void InitGuid()
+			{
+				if (string.IsNullOrEmpty(_guid))
+				{
+					_guid = System.Guid.NewGuid().ToString();
+				}
+			}
 		}
 
 		public class ThemeStyle : Style
