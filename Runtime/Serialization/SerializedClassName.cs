@@ -12,18 +12,13 @@ namespace Myna.Unity.Themes
 		public const string GuidPropertyName = nameof(_guid);
 
 		[SerializeField]
-		private string _name;
+		private string _name = Theme.DefaultClassName;
 
 		[SerializeField]
 		private string _guid;
 
 		public string Name => _name;
 		public string Guid => _guid;
-
-		public SerializedClassName(string name = "")
-		{
-			_name = name;
-		}
 
 		public bool TryGetStyle(Theme theme, out Style style)
 		{

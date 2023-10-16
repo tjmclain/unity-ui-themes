@@ -11,10 +11,12 @@ namespace Myna.Unity.Themes.Editor
 	{
 		private static readonly Dictionary<int, Texture2D> _swatches = new();
 
+		private bool IsSerializedColorName => typeof(SerializedColorName).IsAssignableFrom(fieldInfo.FieldType);
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			var dropdownAttribute = attribute as ColorNameDropdownAttribute;
-			var colorScheme = GetColorScheme(property, dropdownAttribute.ColorSchemePropertyName);
+			var attribute = this.attribute as ColorNameDropdownAttribute;
+			var colorScheme = GetColorScheme(property, attribute.ColorSchemePropertyName);
 
 			if (colorScheme == null)
 			{
@@ -23,7 +25,7 @@ namespace Myna.Unity.Themes.Editor
 				return;
 			}
 
-			string defaultColorPropertyName = dropdownAttribute.DefaultColorPropertyName;
+			string defaultColorPropertyName = attribute.DefaultColorPropertyName;
 			string defaultColorOption = GetDefaultColorOptionName(property, defaultColorPropertyName);
 
 			var options = new List<GUIContent>() { new GUIContent(defaultColorOption) };
@@ -35,13 +37,53 @@ namespace Myna.Unity.Themes.Editor
 				image = GetSwatch(x.Color)
 			}));
 
-			string value = property.stringValue;
-			int index = Array.FindIndex(colors, x => x.Name == value || x.Guid == value) + 1;
+			string colorName = GetColorName(property, colorScheme);
+			int index = Array.FindIndex(colors, x => x.Name == colorName || x.Guid == colorName) + 1;
 			index = Math.Max(index, 0);
 
 			index = EditorGUI.Popup(position, label, index, options.ToArray());
 
-			property.stringValue = index > 0 ? colors[index - 1].Guid : string.Empty;
+			colorName = index > 0 ? colors[index - 1].Name : string.Empty;
+			SetColorName(property, colorScheme, colorName);
+		}
+
+		private string GetColorName(SerializedProperty property, ColorScheme colorScheme)
+		{
+			if (!IsSerializedColorName)
+			{
+				return property.stringValue;
+			}
+
+			var guid = property.FindPropertyRelative(SerializedColorName.GuidPropertyName);
+
+			if (string.IsNullOrEmpty(guid.stringValue) || !colorScheme.TryGetColorName(guid.stringValue, out string colorName))
+			{
+				colorName = string.Empty;
+			}
+
+			var name = property.FindPropertyRelative(SerializedColorName.NamePropertyName);
+			name.stringValue = colorName;
+			return colorName;
+		}
+
+		private void SetColorName(SerializedProperty property, ColorScheme colorScheme, string colorName)
+		{
+			if (!IsSerializedColorName)
+			{
+				property.stringValue = colorName;
+				return;
+			}
+
+			var name = property.FindPropertyRelative(SerializedColorName.NamePropertyName);
+			name.stringValue = colorName;
+
+			if (string.IsNullOrEmpty(colorName) || !colorScheme.TryGetColorGuid(colorName, out string guidValue))
+			{
+				guidValue = string.Empty;
+			}
+
+			var guid = property.FindPropertyRelative(SerializedColorName.GuidPropertyName);
+			guid.stringValue = guidValue;
 		}
 
 		private static ColorScheme GetColorScheme(SerializedProperty property, string colorSchemePropertyName)

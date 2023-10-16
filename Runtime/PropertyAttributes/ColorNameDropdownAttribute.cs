@@ -5,8 +5,8 @@ using UnityEngine;
 [System.AttributeUsage(System.AttributeTargets.Field)]
 public class ColorNameDropdownAttribute : PropertyAttribute
 {
-	public string ColorSchemePropertyName { get; private set; }
-	public string DefaultColorPropertyName { get; private set; }
+	public string ColorSchemePropertyName { get; set; }
+	public string DefaultColorPropertyName { get; set; }
 
 	public ColorNameDropdownAttribute(string colorSchemePropertyName, string defaultColorPropertyName = "")
 	{

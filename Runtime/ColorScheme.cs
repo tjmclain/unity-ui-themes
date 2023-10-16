@@ -80,5 +80,35 @@ namespace Myna.Unity.Themes
 			color = _colors[index].Color;
 			return true;
 		}
+
+		public bool TryGetColorName(string guid, out string colorName)
+		{
+			int index = Array.FindIndex(_colors, x => x.Guid == guid);
+			if (index < 0)
+			{
+				Debug.LogError($"No {nameof(ColorInfo)} for {nameof(guid)} '{guid}'", this);
+				colorName = string.Empty;
+				return false;
+			}
+
+			var info = _colors[index];
+			colorName = info.Name;
+			return true;
+		}
+
+		public bool TryGetColorGuid(string colorName, out string guid)
+		{
+			int index = Array.FindIndex(_colors, x => x.Name == colorName);
+			if (index < 0)
+			{
+				Debug.LogError($"No {nameof(ColorInfo)} for {nameof(colorName)} '{colorName}'", this);
+				guid = string.Empty;
+				return false;
+			}
+
+			var info = _colors[index];
+			guid = info.Guid;
+			return true;
+		}
 	}
 }

@@ -78,24 +78,14 @@ namespace Myna.Unity.Themes
 		private ColorScheme _referenceColorScheme;
 
 		[SerializeField, ColorNameDropdown(nameof(_referenceColorScheme), nameof(_fallbackColor))]
-		private string _colorName = string.Empty;
+		private SerializedColorName _colorName = new();
 
 		[SerializeField]
 		private Color _fallbackColor = Color.white;
 
-		public string ColorName => _colorName;
-		public Color FallbackColor => _fallbackColor;
-
 		public override object GetValue(Theme theme)
 		{
-			if (string.IsNullOrEmpty(ColorName))
-			{
-				return FallbackColor;
-			}
-
-			return theme.TryGetColorByGuid(ColorName, out var color)
-				|| theme.TryGetColor(ColorName, out color)
-				? color : FallbackColor;
+			return _colorName.TryGetColor(theme, out var color) ? color : _fallbackColor;
 		}
 	}
 

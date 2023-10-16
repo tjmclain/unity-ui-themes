@@ -78,7 +78,7 @@ public static class SerializedPropertyUtility
 			}
 		}
 
-		Debug.Log($"Sorted {property.name} in {passes} passes");
+		// Debug.Log($"Sorted {property.name} in {passes} passes");
 	}
 
 	public static int CompareTo(this SerializedProperty property, SerializedProperty other)

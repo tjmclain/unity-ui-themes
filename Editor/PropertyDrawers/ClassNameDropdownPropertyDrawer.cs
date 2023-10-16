@@ -56,7 +56,7 @@ namespace Myna.Unity.Themes.Editor
 
 			var guid = property.FindPropertyRelative(SerializedClassName.GuidPropertyName);
 
-			if (string.IsNullOrEmpty(guid.stringValue) || !theme.TryGetClassName(guid.stringValue, out string className))
+			if (string.IsNullOrEmpty(guid.stringValue) || !theme.TryGetStyleClassName(guid.stringValue, out string className))
 			{
 				className = Theme.DefaultClassName;
 			}
@@ -77,9 +77,9 @@ namespace Myna.Unity.Themes.Editor
 			var name = property.FindPropertyRelative(SerializedClassName.NamePropertyName);
 			name.stringValue = className;
 
-			if (!theme.TryGetGuid(className, out string guidValue))
+			if (string.IsNullOrEmpty(className) || !theme.TryGetStyleGuid(className, out string guidValue))
 			{
-				return;
+				guidValue = string.Empty;
 			}
 
 			var guid = property.FindPropertyRelative(SerializedClassName.GuidPropertyName);

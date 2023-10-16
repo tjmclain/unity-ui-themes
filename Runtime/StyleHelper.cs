@@ -11,7 +11,7 @@ namespace Myna.Unity.Themes
 		private Theme _theme;
 
 		[SerializeField, ClassNameDropdown(nameof(_theme))]
-		private SerializedClassName _className = new(Theme.DefaultClassName);
+		private SerializedClassName _className = new();
 
 		#region IStyleHelper
 

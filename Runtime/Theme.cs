@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Myna.Unity.Themes
 {
 	[CreateAssetMenu(fileName = "Theme", menuName = "UI Themes/Theme")]
-	public class Theme : ScriptableObject, ISerializationCallbackReceiver
+	public class Theme : ScriptableObject
 	{
 		public const string DefaultClassName = ".";
 		public const string StylesPropertyName = nameof(_styles);
@@ -77,6 +77,12 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetStyle(string className, out Style style)
 		{
+			if (string.IsNullOrEmpty(className))
+			{
+				style = default;
+				return false;
+			}
+
 			if (TryGetThemeStyle(className, out var themeStyle))
 			{
 				style = themeStyle;
@@ -87,7 +93,7 @@ namespace Myna.Unity.Themes
 			int index = Array.FindIndex(_styles, x => x.Class == className);
 			if (index < 0)
 			{
-				Debug.LogError($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
+				Debug.LogWarning($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
 				style = default;
 				return false;
 			}
@@ -99,10 +105,16 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetStyleByGuid(string guid, out Style style)
 		{
+			if (string.IsNullOrEmpty(guid))
+			{
+				style = default;
+				return false;
+			}
+
 			int index = Array.FindIndex(_styles, x => x.Guid == guid);
 			if (index < 0)
 			{
-				Debug.LogError($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
+				Debug.LogWarning($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
 				style = default;
 				return false;
 			}
@@ -112,12 +124,12 @@ namespace Myna.Unity.Themes
 			return true;
 		}
 
-		public bool TryGetClassName(string guid, out string className)
+		public bool TryGetStyleClassName(string guid, out string className)
 		{
 			int index = Array.FindIndex(_styles, x => x.Guid == guid);
 			if (index < 0)
 			{
-				Debug.LogError($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
+				Debug.LogWarning($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
 				className = string.Empty;
 				return false;
 			}
@@ -127,12 +139,12 @@ namespace Myna.Unity.Themes
 			return true;
 		}
 
-		public bool TryGetGuid(string className, out string guid)
+		public bool TryGetStyleGuid(string className, out string guid)
 		{
 			int index = Array.FindIndex(_styles, x => x.Class == className);
 			if (index < 0)
 			{
-				Debug.LogError($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
+				Debug.LogWarning($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
 				guid = string.Empty;
 				return false;
 			}
@@ -144,6 +156,12 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetColor(string colorName, out Color color)
 		{
+			if (string.IsNullOrEmpty(colorName))
+			{
+				color = default;
+				return false;
+			}
+
 			var colorScheme = ActiveColorScheme;
 			if (colorScheme == null)
 			{
@@ -157,6 +175,12 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetColorByGuid(string guid, out Color color)
 		{
+			if (string.IsNullOrEmpty(guid))
+			{
+				color = default;
+				return false;
+			}
+
 			var colorScheme = ActiveColorScheme;
 			if (colorScheme == null)
 			{
@@ -236,20 +260,8 @@ namespace Myna.Unity.Themes
 			return themeStyle;
 		}
 
-		public void OnBeforeSerialize()
-		{
-		}
-
-		public void OnAfterDeserialize()
-		{
-			foreach (var style in _styles)
-			{
-				style.InitGuid();
-			}
-		}
-
 		[Serializable]
-		public class StyleInfo
+		public class StyleInfo : ISerializationCallbackReceiver
 		{
 			public const string ClassPropertyName = nameof(_class);
 			public const string StylePropertyName = nameof(_style);
@@ -267,7 +279,11 @@ namespace Myna.Unity.Themes
 			public Style Style => _style;
 			public string Guid => _guid;
 
-			public void InitGuid()
+			public void OnBeforeSerialize()
+			{
+			}
+
+			public void OnAfterDeserialize()
 			{
 				if (string.IsNullOrEmpty(_guid))
 				{
