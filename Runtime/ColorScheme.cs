@@ -16,13 +16,13 @@ namespace Myna.Unity.Themes
 			public const string ColorPropertyName = nameof(_color);
 
 			[SerializeField]
-			private string _name = "Color";
+			protected string _name = "Color";
 
 			[SerializeField]
-			private Color _color = Color.white;
+			protected Color _color = Color.white;
 
 			[SerializeField, HideInInspector]
-			private string _guid = System.Guid.NewGuid().ToString();
+			protected string _guid = System.Guid.NewGuid().ToString();
 
 			public string Name => _name;
 			public Color Color => _color;
@@ -34,14 +34,14 @@ namespace Myna.Unity.Themes
 		[SerializeField, HideInInspector, SingleLineProperty(ColorInfo.NamePropertyName, ColorInfo.ColorPropertyName)]
 		private ColorInfo[] _colors = new ColorInfo[0];
 
-		public IEnumerable<ColorInfo> Colors => _colors;
+		public virtual IEnumerable<ColorInfo> Colors => _colors;
 
-		public IEnumerable<string> GetColorNames()
+		public virtual IEnumerable<string> GetColorNames()
 		{
 			return _colors.Select(x => x.Name);
 		}
 
-		public bool TryGetColor(string colorName, out Color color)
+		public virtual bool TryGetColor(string colorName, out Color color)
 		{
 			if (string.IsNullOrEmpty(colorName))
 			{
@@ -61,7 +61,7 @@ namespace Myna.Unity.Themes
 			return true;
 		}
 
-		public bool TryGetColorByGuid(string guid, out Color color)
+		public virtual bool TryGetColorByGuid(string guid, out Color color)
 		{
 			if (string.IsNullOrEmpty(guid))
 			{

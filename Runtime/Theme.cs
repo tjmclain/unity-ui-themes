@@ -126,6 +126,12 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetStyleClassName(string guid, out string className)
 		{
+			if (string.IsNullOrEmpty(guid))
+			{
+				className = default;
+				return false;
+			}
+
 			int index = Array.FindIndex(_styles, x => x.Guid == guid);
 			if (index < 0)
 			{
@@ -141,6 +147,12 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetStyleGuid(string className, out string guid)
 		{
+			if (string.IsNullOrEmpty(className))
+			{
+				guid = default;
+				return false;
+			}
+
 			int index = Array.FindIndex(_styles, x => x.Class == className);
 			if (index < 0)
 			{
@@ -201,63 +213,18 @@ namespace Myna.Unity.Themes
 				return false;
 			}
 
-			if (Application.isPlaying)
+			if (_themeStyles.TryGetValue(className, out themeStyle))
 			{
-				if (_themeStyles.TryGetValue(className, out themeStyle))
-				{
-					return true;
-				}
+#if UNITY_EDITOR
+				themeStyle.Initialize(this, className);
+#endif
+				return true;
 			}
 
-			themeStyle = CreateThemeStyle(className);
-			return true;
-		}
-
-		protected virtual ThemeStyle CreateThemeStyle(string className)
-		{
-			var themeStyle = CreateInstance<ThemeStyle>();
-			themeStyle.ClassName = className;
-
-			const char dot = '.';
-			var classNames = new List<string>() { DefaultClassName };
-			var sb = new StringBuilder();
-			foreach (char c in className)
-			{
-				if (c == dot && sb.Length > 0)
-				{
-					classNames.Add(sb.ToString());
-				}
-
-				sb.Append(c);
-			}
-
-			if (sb.Length > 1)
-			{
-				classNames.Add(sb.ToString());
-			}
-
-			//Debug.Log($"Creating {nameof(ThemeStyle)} from classes: {string.Join(", ", classNames)}", this);
-
-			foreach (var key in classNames)
-			{
-				int index = Array.FindIndex(_styles, x => x.Class == key);
-				if (index < 0)
-				{
-					continue;
-				}
-
-				var style = _styles[index].Style;
-				if (style == null)
-				{
-					Debug.LogError($"{nameof(Style)} of class '{key}' is null", this);
-					continue;
-				}
-
-				themeStyle.CopyPropertiesFrom(style);
-			}
-
+			themeStyle = CreateInstance<ThemeStyle>();
+			themeStyle.Initialize(this, className);
 			_themeStyles[className] = themeStyle;
-			return themeStyle;
+			return true;
 		}
 
 		[Serializable]
@@ -313,6 +280,48 @@ namespace Myna.Unity.Themes
 			public override bool TryGetProperty(string propertyName, out IStyleProperty property)
 			{
 				return _propertyDict.TryGetValue(propertyName, out property);
+			}
+
+			public void Initialize(Theme theme, string className)
+			{
+				_className = className;
+				_propertyDict.Clear();
+
+				const char dot = '.';
+				var classNames = new List<string>() { DefaultClassName };
+				var sb = new StringBuilder();
+				foreach (char c in className)
+				{
+					if (c == dot && sb.Length > 0)
+					{
+						classNames.Add(sb.ToString());
+					}
+
+					sb.Append(c);
+				}
+
+				if (sb.Length > 1)
+				{
+					classNames.Add(sb.ToString());
+				}
+
+				//Debug.Log($"Creating {nameof(ThemeStyle)} from classes: {string.Join(", ", classNames)}", this);
+
+				foreach (var key in classNames)
+				{
+					if (!theme.TryGetStyle(key, out var style))
+					{
+						continue;
+					}
+
+					if (style == null)
+					{
+						Debug.LogError($"{nameof(Style)} of class '{key}' is null", this);
+						continue;
+					}
+
+					CopyPropertiesFrom(style);
+				}
 			}
 
 			public void CopyPropertiesFrom(Style other)
