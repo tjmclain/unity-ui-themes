@@ -139,7 +139,7 @@ namespace Myna.Unity.Themes.Editor
 				return colorScheme;
 			}
 
-			colorScheme = AssetDatabase.LoadAssetAtPath<ColorScheme>(_defaultColorSchemePath);
+			colorScheme = AssetDatabase.LoadAssetAtPath<ColorScheme>(_defaultColorSchemePath) as ColorScheme;
 			if (colorScheme != null)
 			{
 				return colorScheme;

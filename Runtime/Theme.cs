@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Codice.CM.Common.Tree.Partial;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Myna.Unity.Themes
 {
@@ -14,7 +16,9 @@ namespace Myna.Unity.Themes
 		public const string DefaultClassName = ".";
 		public const string StylesPropertyName = nameof(_styles);
 
-		private readonly Dictionary<string, ThemeStyle> _themeStyles = new();
+		public static readonly UnityEvent<Theme> SettingsChanged = new();
+
+		private readonly Dictionary<string, RuntimeStyle> _runtimeStyles = new();
 
 		[SerializeField]
 		private ColorScheme _defaultColorScheme = null;
@@ -37,7 +41,7 @@ namespace Myna.Unity.Themes
 
 		public ColorScheme[] ColorSchemes => _colorSchemes;
 
-		public Dictionary<string, ThemeStyle> ThemeStyles => _themeStyles;
+		public Dictionary<string, RuntimeStyle> RuntimeStyles => _runtimeStyles;
 
 		public IEnumerable<string> GetStyleClassNames()
 		{
@@ -53,10 +57,41 @@ namespace Myna.Unity.Themes
 
 		public void SetColorScheme(string colorSchemeName)
 		{
+			const string colorScheme = "ColorScheme";
+			const string colors = "Colors";
+
+			bool Match(ColorScheme cs)
+			{
+				if (cs == null)
+				{
+					Debug.LogWarning($"{nameof(SetColorScheme)}: {nameof(ColorScheme)} == null", this);
+					return false;
+				}
+
+				string name = cs.name;
+				if (name == colorSchemeName)
+				{
+					return true;
+				}
+
+				if (name.EndsWith(colorScheme))
+				{
+					return name[..^colorScheme.Length] == colorSchemeName;
+				}
+
+				if (name.EndsWith(colors))
+				{
+					return name[..^colors.Length] == colorSchemeName;
+				}
+
+				return false;
+			}
+
 			// Reset to default color scheme
-			if (_defaultColorScheme != null && colorSchemeName == _defaultColorScheme.name)
+			if (Match(_defaultColorScheme))
 			{
 				_activeColorScheme = _defaultColorScheme;
+				SettingsChanged.Invoke(this);
 				return;
 			}
 
@@ -68,6 +103,7 @@ namespace Myna.Unity.Themes
 			}
 
 			_activeColorScheme = _colorSchemes[index];
+			SettingsChanged.Invoke(this);
 		}
 
 		public void ResetColorSchemeToDefault()
@@ -75,105 +111,50 @@ namespace Myna.Unity.Themes
 			_activeColorScheme = _defaultColorScheme;
 		}
 
-		public bool TryGetStyle(string className, out Style style)
+		public bool TryGetStyle(string styleClass, out Style style)
 		{
-			if (string.IsNullOrEmpty(className))
-			{
-				style = default;
-				return false;
-			}
-
-			if (TryGetThemeStyle(className, out var themeStyle))
+			if (TryGetRuntimeStyle(styleClass, out var themeStyle))
 			{
 				style = themeStyle;
 				return true;
 			}
 
-			// try to the find the style with our exact class name
-			int index = Array.FindIndex(_styles, x => x.Class == className);
-			if (index < 0)
+			if (!_styles.TryGetValue(x => x.Class == styleClass, out var info))
 			{
-				Debug.LogWarning($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
+				Debug.LogWarning($"No {nameof(Style)} for {nameof(styleClass)} '{styleClass}'", this);
 				style = default;
 				return false;
 			}
 
-			var info = _styles[index];
 			style = info.Style;
 			return true;
 		}
 
-		public bool TryGetStyleByGuid(string guid, out Style style)
+		public bool TryGetStyleByGuid(string styleGuid, out Style style)
 		{
-			if (string.IsNullOrEmpty(guid))
+			if (!_styles.TryGetValue(x => x.Guid == styleGuid, out var info))
 			{
+				Debug.LogWarning($"No {nameof(Style)} for {nameof(styleGuid)} '{styleGuid}'", this);
 				style = default;
 				return false;
 			}
 
-			int index = Array.FindIndex(_styles, x => x.Guid == guid);
-			if (index < 0)
-			{
-				Debug.LogWarning($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
-				style = default;
-				return false;
-			}
-
-			var info = _styles[index];
-			style = TryGetThemeStyle(info.Class, out var themeStyle) ? themeStyle : info.Style;
+			style = info.Style;
 			return true;
 		}
 
-		public bool TryGetStyleClassName(string guid, out string className)
+		public string StyleGuidToClassName(string styleGuid)
 		{
-			if (string.IsNullOrEmpty(guid))
-			{
-				className = default;
-				return false;
-			}
-
-			int index = Array.FindIndex(_styles, x => x.Guid == guid);
-			if (index < 0)
-			{
-				Debug.LogWarning($"No {nameof(Style)} for {nameof(guid)} '{guid}'", this);
-				className = string.Empty;
-				return false;
-			}
-
-			var info = _styles[index];
-			className = info.Class;
-			return true;
+			return _styles.TryGetValue(x => x.Guid == styleGuid, out var info) ? info.Class : DefaultClassName;
 		}
 
-		public bool TryGetStyleGuid(string className, out string guid)
+		public string StyleClassToGuid(string styleClass)
 		{
-			if (string.IsNullOrEmpty(className))
-			{
-				guid = default;
-				return false;
-			}
-
-			int index = Array.FindIndex(_styles, x => x.Class == className);
-			if (index < 0)
-			{
-				Debug.LogWarning($"No {nameof(Style)} for {nameof(className)} '{className}'", this);
-				guid = string.Empty;
-				return false;
-			}
-
-			var info = _styles[index];
-			guid = info.Guid;
-			return true;
+			return _styles.TryGetValue(x => x.Class == styleClass, out var info) ? info.Guid : string.Empty;
 		}
 
 		public bool TryGetColor(string colorName, out Color color)
 		{
-			if (string.IsNullOrEmpty(colorName))
-			{
-				color = default;
-				return false;
-			}
-
 			var colorScheme = ActiveColorScheme;
 			if (colorScheme == null)
 			{
@@ -187,12 +168,6 @@ namespace Myna.Unity.Themes
 
 		public bool TryGetColorByGuid(string guid, out Color color)
 		{
-			if (string.IsNullOrEmpty(guid))
-			{
-				color = default;
-				return false;
-			}
-
 			var colorScheme = ActiveColorScheme;
 			if (colorScheme == null)
 			{
@@ -204,31 +179,31 @@ namespace Myna.Unity.Themes
 			return colorScheme.TryGetColorByGuid(guid, out color);
 		}
 
-		protected virtual bool TryGetThemeStyle(string className, out ThemeStyle themeStyle)
+		protected virtual bool TryGetRuntimeStyle(string className, out RuntimeStyle style)
 		{
 			if (string.IsNullOrEmpty(className))
 			{
-				Debug.LogError($"{nameof(TryGetThemeStyle)}: string.IsNullOrEmpty({nameof(className)})", this);
-				themeStyle = default;
+				Debug.LogError($"{nameof(TryGetRuntimeStyle)}: string.IsNullOrEmpty({nameof(className)})", this);
+				style = default;
 				return false;
 			}
 
-			if (_themeStyles.TryGetValue(className, out themeStyle))
+			if (_runtimeStyles.TryGetValue(className, out style))
 			{
 #if UNITY_EDITOR
-				themeStyle.Initialize(this, className);
+				style.Initialize(_styles, className);
 #endif
 				return true;
 			}
 
-			themeStyle = CreateInstance<ThemeStyle>();
-			themeStyle.Initialize(this, className);
-			_themeStyles[className] = themeStyle;
+			style = CreateInstance<RuntimeStyle>();
+			style.Initialize(_styles, className);
+			_runtimeStyles[className] = style;
 			return true;
 		}
 
 		[Serializable]
-		public class StyleInfo : ISerializationCallbackReceiver
+		public class StyleInfo
 		{
 			public const string ClassPropertyName = nameof(_class);
 			public const string StylePropertyName = nameof(_style);
@@ -245,36 +220,16 @@ namespace Myna.Unity.Themes
 			public string Class => _class;
 			public Style Style => _style;
 			public string Guid => _guid;
-
-			public void OnBeforeSerialize()
-			{
-			}
-
-			public void OnAfterDeserialize()
-			{
-				if (string.IsNullOrEmpty(_guid))
-				{
-					_guid = System.Guid.NewGuid().ToString();
-				}
-			}
 		}
 
-		public class ThemeStyle : Style
+		public class RuntimeStyle : Style
 		{
-			private string _className;
 			private readonly Dictionary<string, IStyleProperty> _propertyDict = new();
-
-			public string ClassName
-			{
-				get => _className;
-				set => _className = value;
-			}
 
 			public override T GetPropertyValue<T>(string propertyName, Theme theme, T defaultValue)
 			{
 				return TryGetProperty(propertyName, out var property)
-					? (T)property.GetValue(theme)
-					: defaultValue;
+					? (T)property.GetValue(theme) : defaultValue;
 			}
 
 			public override bool TryGetProperty(string propertyName, out IStyleProperty property)
@@ -282,9 +237,8 @@ namespace Myna.Unity.Themes
 				return _propertyDict.TryGetValue(propertyName, out property);
 			}
 
-			public void Initialize(Theme theme, string className)
+			public void Initialize(StyleInfo[] styles, string className)
 			{
-				_className = className;
 				_propertyDict.Clear();
 
 				const char dot = '.';
@@ -307,16 +261,17 @@ namespace Myna.Unity.Themes
 
 				//Debug.Log($"Creating {nameof(ThemeStyle)} from classes: {string.Join(", ", classNames)}", this);
 
-				foreach (var key in classNames)
+				foreach (var name in classNames)
 				{
-					if (!theme.TryGetStyle(key, out var style))
+					if (!styles.TryGetValue(x => x.Class == name, out var info))
 					{
 						continue;
 					}
 
+					var style = info.Style;
 					if (style == null)
 					{
-						Debug.LogError($"{nameof(Style)} of class '{key}' is null", this);
+						Debug.LogError($"{nameof(Style)} of class '{name}' is null", this);
 						continue;
 					}
 

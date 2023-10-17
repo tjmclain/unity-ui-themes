@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Myna.Unity.Themes
 {
-	public abstract class OverrideProperty
+	public abstract class StylePropertyOverride
 	{
 		public const string EnabledPropertyName = nameof(_enabled);
 
@@ -14,7 +14,7 @@ namespace Myna.Unity.Themes
 		[SerializeField, HideInInspector]
 		private string _stylePropertyName = string.Empty;
 
-		public OverrideProperty(string stylePropertyName = "")
+		public StylePropertyOverride(string stylePropertyName = "")
 		{
 			_stylePropertyName = stylePropertyName;
 		}
@@ -24,14 +24,14 @@ namespace Myna.Unity.Themes
 	}
 
 	[System.Serializable]
-	public class OverrideProperty<T> : OverrideProperty
+	public class StylePropertyOverride<T> : StylePropertyOverride
 	{
 		public const string ValuePropertyName = nameof(_value);
 
 		[SerializeField]
 		private T _value;
 
-		public OverrideProperty(string targetPropertyName = "") : base(targetPropertyName)
+		public StylePropertyOverride(string stylePropertyName = "") : base(stylePropertyName)
 		{
 		}
 
@@ -51,18 +51,29 @@ namespace Myna.Unity.Themes
 
 			if (string.IsNullOrEmpty(StylePropertyName))
 			{
+				Debug.LogWarning($"{GetTypeName()}.{nameof(StylePropertyName)} is null or empty");
 				return defaultValue;
 			}
 
 			return style.GetPropertyValue(StylePropertyName, theme, defaultValue);
 		}
+
+		protected virtual string GetTypeName()
+		{
+			return $"{nameof(StylePropertyOverride)}<{typeof(T).Name}>";
+		}
 	}
 
 	[System.Serializable]
-	public class OverrideAlphaProperty : OverrideProperty<float>
+	public class AlphaPropertyOverride : StylePropertyOverride<float>
 	{
-		public OverrideAlphaProperty(string targetPropertyName = "") : base(targetPropertyName)
+		public AlphaPropertyOverride(string targetPropertyName = "") : base(targetPropertyName)
 		{
+		}
+
+		protected override string GetTypeName()
+		{
+			return nameof(AlphaPropertyOverride);
 		}
 	}
 }

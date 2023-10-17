@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Myna.Unity.Themes.Editor
 {
-	[CustomPropertyDrawer(typeof(OverrideProperty), true)]
+	[CustomPropertyDrawer(typeof(StylePropertyOverride), true)]
 	public class OverridePropertyDrawer : PropertyDrawer
 	{
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -11,7 +11,7 @@ namespace Myna.Unity.Themes.Editor
 			// if we only have 1 child property, draw that; otherwise draw a normal property field
 			var children = SerializedPropertyUtility.GetDirectChildren(property);
 			var mainProperty = children.Count == 1 ? children[0] : property;
-			var enabledProperty = property.FindPropertyRelative(OverrideProperty.EnabledPropertyName);
+			var enabledProperty = property.FindPropertyRelative(StylePropertyOverride.EnabledPropertyName);
 
 			var toggleSize = EditorStyles.toggle.CalcSize(GUIContent.none);
 			float buffer = EditorGUIUtility.standardVerticalSpacing * 2f;

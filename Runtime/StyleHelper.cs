@@ -13,12 +13,10 @@ namespace Myna.Unity.Themes
 		[SerializeField, ClassNameDropdown(nameof(_theme))]
 		private SerializedClassName _className = new();
 
-		#region IStyleHelper
-
 		public Theme Theme => _theme;
 		public string ClassName => _className.Name;
 
-		public void ApplyStyle()
+		public virtual void ApplyStyle()
 		{
 			if (TryGetStyle(out Style style))
 			{
@@ -26,9 +24,7 @@ namespace Myna.Unity.Themes
 			}
 		}
 
-		#endregion IStyleHelper
-
-		protected bool TryGetStyle(out Style style)
+		protected virtual bool TryGetStyle(out Style style)
 		{
 			if (_theme == null)
 			{
@@ -40,16 +36,34 @@ namespace Myna.Unity.Themes
 			return _className.TryGetStyle(_theme, out style);
 		}
 
+		protected virtual void OnThemeSettingsChanged(Theme theme)
+		{
+			if (theme == _theme)
+			{
+				ApplyStyle();
+			}
+		}
+
 		#region MonoBehaviour
 
 		protected virtual void OnEnable()
 		{
+			Theme.SettingsChanged.AddListener(OnThemeSettingsChanged);
 			ApplyStyle();
 		}
+
+		protected virtual void OnDisable()
+		{
+			Theme.SettingsChanged.RemoveListener(OnThemeSettingsChanged);
+		}
+
+#if UNITY_EDITOR
 
 		protected virtual void OnValidate()
 		{
 		}
+
+#endif
 
 		#endregion MonoBehaviour
 

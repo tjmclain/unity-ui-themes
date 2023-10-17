@@ -1,9 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
-using Newtonsoft.Json.Schema;
 
 public static class SerializedPropertyUtility
 {
@@ -57,13 +57,11 @@ public static class SerializedPropertyUtility
 
 		comparer ??= _comparer;
 
-		// this is slow, but I'm sure how to do a more optimal sort
+		// this is slow, but I'm not sure how to do a more optimal sort
 		bool changed = true;
-		int passes = 0;
 		while (changed)
 		{
 			changed = false;
-			passes++;
 			for (int i = 0; i < property.arraySize - 1; i++)
 			{
 				var a = property.GetArrayElementAtIndex(i);
@@ -77,8 +75,27 @@ public static class SerializedPropertyUtility
 				}
 			}
 		}
+	}
 
-		// Debug.Log($"Sorted {property.name} in {passes} passes");
+	public static bool TryGetArrayElementIndex(this SerializedProperty property, Predicate<SerializedProperty> match, out int index)
+	{
+		if (!property.isArray)
+		{
+			index = -1;
+			return false;
+		}
+
+		for (index = 0; index < property.arraySize; index++)
+		{
+			var element = property.GetArrayElementAtIndex(index);
+			if (match(element))
+			{
+				return true;
+			}
+		}
+
+		index = -1;
+		return false;
 	}
 
 	public static int CompareTo(this SerializedProperty property, SerializedProperty other)

@@ -12,14 +12,14 @@ namespace Myna.Unity.Themes
 		[Serializable]
 		public class OverrideProperties
 		{
-			public OverrideProperty<Color> Color = new(ColorProperty.DefaultName);
-			public OverrideAlphaProperty Alpha = new(AlphaProperty.DefaultName);
-			public OverrideProperty<float> FontSize = new(FloatProperty.Names.FontSize);
-			public OverrideProperty<bool> AutoSize = new(BoolProperty.Names.AutoSize);
-			public OverrideProperty<float> FontSizeMin = new(FloatProperty.Names.FontSizeMin);
-			public OverrideProperty<float> FontSizeMax = new(FloatProperty.Names.FontSizeMax);
-			public OverrideProperty<FontStyles> FontStyle = new(FontStyleProperty.DefaultName);
-			public OverrideProperty<bool> RaycastTarget = new(BoolProperty.Names.RaycastTarget);
+			public StylePropertyOverride<Color> Color = new(ColorProperty.DefaultName);
+			public AlphaPropertyOverride Alpha = new(AlphaProperty.DefaultName);
+			public StylePropertyOverride<float> FontSize = new(FloatProperty.Names.FontSize);
+			public StylePropertyOverride<bool> AutoSize = new(BoolProperty.Names.AutoSize);
+			public StylePropertyOverride<float> FontSizeMin = new(FloatProperty.Names.FontSizeMin);
+			public StylePropertyOverride<float> FontSizeMax = new(FloatProperty.Names.FontSizeMax);
+			public StylePropertyOverride<FontStyles> FontStyle = new(FontStyleProperty.DefaultName);
+			public StylePropertyOverride<bool> RaycastTarget = new(BoolProperty.Names.RaycastTarget);
 		}
 
 		[SerializeField]
@@ -28,6 +28,8 @@ namespace Myna.Unity.Themes
 		[SerializeField]
 		private OverrideProperties _overrides = new();
 
+#if UNITY_EDITOR
+
 		protected override void OnValidate()
 		{
 			if (_text == null)
@@ -35,6 +37,8 @@ namespace Myna.Unity.Themes
 				TryGetComponent(out _text);
 			}
 		}
+
+#endif
 
 		protected override void ApplyStyle(Style style)
 		{

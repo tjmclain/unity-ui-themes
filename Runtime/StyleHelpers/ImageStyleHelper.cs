@@ -9,11 +9,11 @@ namespace Myna.Unity.Themes
 		[Serializable]
 		public class OverrideProperties
 		{
-			public OverrideProperty<Sprite> Sprite = new(SpriteProperty.DefaultName);
-			public OverrideProperty<Color> Color = new(ColorProperty.DefaultName);
-			public OverrideAlphaProperty Alpha = new(AlphaProperty.DefaultName);
-			public OverrideProperty<ImageType> ImageType = new(ImageTypeProperty.DefaultName);
-			public OverrideProperty<bool> RaycastTarget = new(BoolProperty.Names.RaycastTarget);
+			public StylePropertyOverride<Sprite> Sprite = new(SpriteProperty.DefaultName);
+			public StylePropertyOverride<Color> Color = new(ColorProperty.DefaultName);
+			public AlphaPropertyOverride Alpha = new(AlphaProperty.DefaultName);
+			public StylePropertyOverride<ImageType> ImageType = new(ImageTypeProperty.DefaultName);
+			public StylePropertyOverride<bool> RaycastTarget = new(BoolProperty.Names.RaycastTarget);
 		}
 
 		[SerializeField]
@@ -24,6 +24,8 @@ namespace Myna.Unity.Themes
 
 		public Image Image => _image;
 
+#if UNITY_EDITOR
+
 		protected override void OnValidate()
 		{
 			if (_image == null)
@@ -31,6 +33,8 @@ namespace Myna.Unity.Themes
 				TryGetComponent(out _image);
 			}
 		}
+
+#endif
 
 		protected override void ApplyStyle(Style style)
 		{

@@ -39,12 +39,14 @@ namespace Myna.Unity.Themes.Editor
 			string className = GetClassName(property, theme);
 
 			int index = Array.IndexOf(classNames, className);
-			index = Math.Max(index, 0);
-
 			var options = classNames.Select(x => new GUIContent(x)).ToArray();
-			index = EditorGUI.Popup(position, label, index, options);
+			int selected = EditorGUI.Popup(position, label, Math.Max(index, 0), options);
 
-			SetClassName(property, theme, classNames[index]);
+			if (selected != index)
+			{
+				className = classNames[selected];
+				SetClassName(property, theme, className);
+			}
 		}
 
 		private string GetClassName(SerializedProperty property, Theme theme)
@@ -56,12 +58,8 @@ namespace Myna.Unity.Themes.Editor
 
 			var guid = property.FindPropertyRelative(SerializedClassName.GuidPropertyName);
 
-			if (string.IsNullOrEmpty(guid.stringValue) || !theme.TryGetStyleClassName(guid.stringValue, out string className))
-			{
-				className = Theme.DefaultClassName;
-			}
-
 			var name = property.FindPropertyRelative(SerializedClassName.NamePropertyName);
+			string className = theme.StyleGuidToClassName(guid.stringValue);
 			name.stringValue = className;
 			return className;
 		}
@@ -77,13 +75,8 @@ namespace Myna.Unity.Themes.Editor
 			var name = property.FindPropertyRelative(SerializedClassName.NamePropertyName);
 			name.stringValue = className;
 
-			if (string.IsNullOrEmpty(className) || !theme.TryGetStyleGuid(className, out string guidValue))
-			{
-				guidValue = string.Empty;
-			}
-
 			var guid = property.FindPropertyRelative(SerializedClassName.GuidPropertyName);
-			guid.stringValue = guidValue;
+			guid.stringValue = theme.StyleClassToGuid(className);
 		}
 	}
 }

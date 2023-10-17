@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using System.Linq;
 using System;
 
@@ -24,7 +23,7 @@ namespace Myna.Unity.Themes.Editor
 
 			if (serializedObject.ApplyModifiedProperties())
 			{
-				ApplyStylesInScene();
+				StyleHelperEditorUtility.ApplyStylesInScene();
 			}
 		}
 
@@ -134,16 +133,6 @@ namespace Myna.Unity.Themes.Editor
 		private bool CanAddProperty(ReorderableList list)
 		{
 			return GetPropertyNamesForAdd(list.serializedProperty).Count() > 0;
-		}
-
-		private static void ApplyStylesInScene()
-		{
-			var stageHandle = StageUtility.GetCurrentStageHandle();
-			var styleHelpers = stageHandle.FindComponentsOfType<StyleHelper>();
-			foreach (var styleHelper in styleHelpers)
-			{
-				styleHelper.ApplyStyle();
-			}
 		}
 	}
 }

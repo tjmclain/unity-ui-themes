@@ -22,9 +22,10 @@ namespace Myna.Unity.Themes.Editor
 				_sortButton.DrawLayout(colors);
 			}
 
-
-			serializedObject.ApplyModifiedProperties();
+			if (serializedObject.ApplyModifiedProperties())
+			{
+				StyleHelperEditorUtility.ApplyStylesInScene();
+			}
 		}
-
 	}
 }

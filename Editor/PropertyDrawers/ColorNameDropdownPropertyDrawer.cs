@@ -38,7 +38,7 @@ namespace Myna.Unity.Themes.Editor
 			}));
 
 			string colorName = GetColorName(property, colorScheme);
-			int index = Array.FindIndex(colors, x => x.Name == colorName || x.Guid == colorName) + 1;
+			int index = Array.FindIndex(colors, x => x.Name == colorName) + 1;
 			index = Math.Max(index, 0);
 
 			index = EditorGUI.Popup(position, label, index, options.ToArray());
@@ -55,11 +55,7 @@ namespace Myna.Unity.Themes.Editor
 			}
 
 			var guid = property.FindPropertyRelative(SerializedColorName.GuidPropertyName);
-
-			if (string.IsNullOrEmpty(guid.stringValue) || !colorScheme.TryGetColorName(guid.stringValue, out string colorName))
-			{
-				colorName = string.Empty;
-			}
+			string colorName = colorScheme.ColorGuidToName(guid.stringValue);
 
 			var name = property.FindPropertyRelative(SerializedColorName.NamePropertyName);
 			name.stringValue = colorName;
@@ -77,13 +73,8 @@ namespace Myna.Unity.Themes.Editor
 			var name = property.FindPropertyRelative(SerializedColorName.NamePropertyName);
 			name.stringValue = colorName;
 
-			if (string.IsNullOrEmpty(colorName) || !colorScheme.TryGetColorGuid(colorName, out string guidValue))
-			{
-				guidValue = string.Empty;
-			}
-
 			var guid = property.FindPropertyRelative(SerializedColorName.GuidPropertyName);
-			guid.stringValue = guidValue;
+			guid.stringValue = colorScheme.ColorNameToGuid(colorName);
 		}
 
 		private static ColorScheme GetColorScheme(SerializedProperty property, string colorSchemePropertyName)

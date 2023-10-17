@@ -14,7 +14,7 @@ namespace Myna.Unity.Themes.Editor
 
 			if (property.objectReferenceValue == null)
 			{
-				property.objectReferenceValue = ProjectSettings.GetInstance().GetDefaultTheme().DefaultColorScheme;
+				property.objectReferenceValue = ProjectSettings.GetInstance().GetDefaultColorScheme();
 			}
 		}
 	}

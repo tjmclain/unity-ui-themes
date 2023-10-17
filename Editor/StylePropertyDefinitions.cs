@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Myna.Unity.Themes
+namespace Myna.Unity.Themes.Editor
 {
-	// TODO: consider moving this entire class to the Editor assembly
 	public static class StylePropertyDefinitions
 	{
 		private static readonly Dictionary<string, Type> _definitions = new();
