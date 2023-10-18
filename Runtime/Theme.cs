@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using Codice.CM.Common.Tree.Partial;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -18,6 +15,9 @@ namespace Myna.Unity.Themes
 
 		public static readonly UnityEvent<Theme> SettingsChanged = new();
 
+		private const string _singletonResourcesPath = "UI Themes/Theme";
+		private static Theme _instance = null;
+
 		private readonly Dictionary<string, RuntimeStyle> _runtimeStyles = new();
 
 		[SerializeField]
@@ -30,6 +30,9 @@ namespace Myna.Unity.Themes
 		private StyleInfo[] _styles = new StyleInfo[0];
 
 		private ColorScheme _activeColorScheme = null;
+
+		public static Theme Instance => GetSingletonInstance();
+		public static bool IsInitialized => _instance != null;
 
 		public ColorScheme DefaultColorScheme
 		{
@@ -201,6 +204,49 @@ namespace Myna.Unity.Themes
 			_runtimeStyles[className] = style;
 			return true;
 		}
+
+		private static Theme GetSingletonInstance()
+		{
+			if (_instance != null)
+			{
+				return _instance;
+			}
+
+			CreateSingletonAssetIfMissing();
+
+			_instance = Resources.Load<Theme>(_singletonResourcesPath);
+			return _instance;
+		}
+
+#if UNITY_EDITOR
+
+		[UnityEditor.InitializeOnLoadMethod]
+		[System.Diagnostics.Conditional("UNITY_EDITOR")]
+		private static void CreateSingletonAssetIfMissing()
+		{
+			var instance = Resources.Load<Theme>(_singletonResourcesPath);
+			if (instance != null)
+			{
+				return;
+			}
+
+			string assetPath = $"Assets/Resources/{_singletonResourcesPath}.asset";
+			if (UnityEditor.AssetDatabase.DeleteAsset(assetPath))
+			{
+				UnityEditor.AssetDatabase.SaveAssets();
+				UnityEditor.AssetDatabase.Refresh();
+			}
+
+			string directory = System.IO.Path.GetDirectoryName(assetPath);
+			System.IO.Directory.CreateDirectory(directory);
+
+			instance = CreateInstance<Theme>();
+			UnityEditor.AssetDatabase.CreateAsset(instance, assetPath);
+			UnityEditor.AssetDatabase.SaveAssets();
+			UnityEditor.AssetDatabase.Refresh();
+		}
+
+#endif
 
 		[Serializable]
 		public class StyleInfo
