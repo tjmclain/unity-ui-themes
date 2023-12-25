@@ -16,8 +16,9 @@ namespace Myna.Unity.Themes.Editor
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var attribute = this.attribute as ColorNameDropdownAttribute;
-			var colorScheme = GetColorScheme(property, attribute.ColorSchemePropertyName);
+			var colorScheme = GetDefaultColorScheme();
 
+			// TODO draw color field only
 			if (colorScheme == null)
 			{
 				Debug.LogWarning($"{nameof(colorScheme)} == null", property.serializedObject.targetObject);
@@ -77,21 +78,10 @@ namespace Myna.Unity.Themes.Editor
 			guid.stringValue = colorScheme.ColorNameToGuid(colorName);
 		}
 
-		private static ColorScheme GetColorScheme(SerializedProperty property, string colorSchemePropertyName)
-		{
-			var colorSchemeProperty = property.GetSiblingProperty(colorSchemePropertyName);
-			if (colorSchemeProperty == null)
-			{
-				return GetDefaultColorScheme();
-			}
-
-			var colorScheme = colorSchemeProperty.objectReferenceValue as ColorScheme;
-			return colorScheme != null ? colorScheme : GetDefaultColorScheme();
-		}
-
 		private static ColorScheme GetDefaultColorScheme()
 		{
-			return ProjectSettings.GetInstance().GetDefaultColorScheme();
+			var theme = Theme.Instance;
+			return theme != null ? theme.DefaultColorScheme : null;
 		}
 
 		private static string GetDefaultColorOptionName(SerializedProperty property, string defaultColorPropertyName)
